@@ -79,8 +79,8 @@ export default function CreateOracleIntegrated() {
       BigInt(Number(depositLock || 0)),                                           // depositLockingPeriod
       BigInt(Number(withdrawLock || 0)),                                          // withdrawalLockingPeriod
       BigInt(Number(reward || 0)),                                                // rewardBps
-      BigInt(alpha || "0"),                                                       // gamma
-      BigInt(defaultSampleSize || "0"),                                           // defaultSampleSize
+      BigInt(alpha && /^\d+$/.test(alpha) ? alpha : "0"),                         // gamma
+      BigInt(defaultSampleSize && /^\d+$/.test(defaultSampleSize) ? defaultSampleSize : "100"), // defaultSampleSize
     ] as const
   }, [name, description, weightToken, reward, halfLifeSeconds, quorumBps, depositLock, withdrawLock, alpha, defaultSampleSize])
 
@@ -636,6 +636,7 @@ export default function CreateOracleIntegrated() {
                 id="defaultSampleSize"
                 type="number"
                 min={1}
+                step={1}
                 placeholder="100"
                 value={defaultSampleSize}
                 onChange={(e) => setDefaultSampleSize(e.target.value)}
