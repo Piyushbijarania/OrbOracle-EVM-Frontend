@@ -36,7 +36,7 @@ function isHexAddress(value: string | null): value is `0x${string}` {
 
 type PriceHistoryResult = readonly [readonly bigint[], readonly bigint[], readonly bigint[]]
 
-const PRICE_DECIMALS = 8
+const PRICE_DECIMALS = 18
 const DISPLAY_PRECISION = 6
 const MAX_PRICE_POINTS = 20
 
