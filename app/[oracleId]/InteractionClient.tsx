@@ -202,10 +202,10 @@ export default function OracleInteractionPage() {
     query: { enabled: !!oracleAddress && !!userAddress }
   })
 
-  const { data: lastSubmissionTimeData } = useReadContract({
+  const { data: lastUpdatedData } = useReadContract({
     address: oracleAddress || undefined,
     abi: OracleAbi,
-    functionName: 'lastSubmissionTime',
+    functionName: 'lastUpdated',
     query: { enabled: !!oracleAddress }
   })
 
@@ -380,8 +380,8 @@ export default function OracleInteractionPage() {
     if (tokenAllowanceData !== undefined) {
       setTokenAllowance(formatTokenAmount(tokenAllowanceData as bigint, 4))
     }
-    if (lastSubmissionTimeData) {
-      const timestamp = Number(lastSubmissionTimeData as bigint)
+    if (lastUpdatedData) {
+      const timestamp = Number(lastUpdatedData as bigint)
       const now = Math.floor(Date.now() / 1000)
       const diff = now - timestamp
       if (diff < 60) {
@@ -439,7 +439,7 @@ export default function OracleInteractionPage() {
       }
     }
 
-  }, [lockedTokensData, unlockedTokensData, userTokenBalanceData, tokenAllowanceData, formatTokenAmount, weightTokenDecimals, lastSubmissionTimeData, rewardData, halfLifeSecondsData, quorumData, operationLockingPeriodData, withdrawalLockingPeriodData, alphaData, depositTimestampData, lastOperationTimestampData])
+  }, [lockedTokensData, unlockedTokensData, userTokenBalanceData, tokenAllowanceData, formatTokenAmount, weightTokenDecimals, lastUpdatedData, rewardData, halfLifeSecondsData, quorumData, operationLockingPeriodData, withdrawalLockingPeriodData, alphaData, depositTimestampData, lastOperationTimestampData])
 
   // Early validation before calling the hook
   if (!oracleAddress || !chainIdValid) {

@@ -29,7 +29,7 @@ export const ComposedOracleAbi = [
     ],
     "stateMutability": "view"
   },
-  { "type": "function", "name": "lastSubmissionTime", "inputs": [], "outputs": [{ "type": "uint256", "internalType": "uint256" }], "stateMutability": "view" },
+  { "type": "function", "name": "lastUpdated", "inputs": [], "outputs": [{ "type": "uint256", "internalType": "uint256" }], "stateMutability": "view" },
   { "type": "function", "name": "isBlacklisted", "inputs": [{ "name": "target", "type": "address", "internalType": "address" }], "outputs": [{ "type": "bool", "internalType": "bool" }], "stateMutability": "view" },
 
   // Errors

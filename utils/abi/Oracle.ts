@@ -47,7 +47,7 @@ export const OracleAbi = [
   { "type": "function", "name": "priceTimestamps", "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }], "outputs": [{ "type": "uint256", "internalType": "uint256" }], "stateMutability": "view" },
 
   // Time markers
-  { "type": "function", "name": "lastSubmissionTime", "inputs": [], "outputs": [{ "type": "uint256", "internalType": "uint256" }], "stateMutability": "view" },
+  { "type": "function", "name": "lastUpdated", "inputs": [], "outputs": [{ "type": "uint256", "internalType": "uint256" }], "stateMutability": "view" },
   { "type": "function", "name": "lastTimestamp", "inputs": [], "outputs": [{ "type": "uint256", "internalType": "uint256" }], "stateMutability": "view" },
 
   // Core actions
