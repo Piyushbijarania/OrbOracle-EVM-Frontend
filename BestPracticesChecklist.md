@@ -2,7 +2,7 @@
 
 > Criteria adapted from the [OpenSSF Best Practices Badge](https://github.com/coreinfrastructure/best-practices-badge)
 > (MIT / CC BY 3.0) by OpenSSF contributors. Modified for AOSSIE multi-repo template use.
-
+>
 > **Purpose:** Covers OpenSSF Best Practices criteria that are NOT auto-detected by OpenSSF Scorecard.
 > Scorecard already handles: License, SAST tools, CI tests, Security Policy file, Branch Protection,
 > Pinned Dependencies, Signed Releases, Maintained status, and Known Vulnerabilities.
@@ -23,15 +23,17 @@
 ## Score Summary
 
 <!-- Auto-updated by checklist-score.yml workflow — do not edit manually -->
+
 | Category           | Met | Total | Status |
 |--------------------|-----|-------|--------|
-| Basics             | 7   | 8     | 🟢     |
+| Basics             | 7   | 7     | 🟢     |
 | Change Control     | 6   | 6     | 🟢     |
 | Reporting          | 8   | 8     | 🟢     |
-| Quality            | 11  | 11    | 🟢     |
+| Quality            | 6   | 6     | 🟢     |
 | Security           | 9   | 9     | 🟢     |
 | Analysis           | 7   | 7     | 🟢     |
-| **Total**          | **48** | **49** | **98%** |
+| **Total**          | **43** | **43** | **100%** |
+
 ---
 
 ## 🏗️ Basics
@@ -141,22 +143,22 @@
 
 ### Automated Testing
 
-- [x] 🔵 **test_invocation** — The test suite can be invoked in a standard way for the language (e.g., `npm test`, `pytest`, `cargo test`). *(SUGGESTED)*
-  - *Evidence URL:* Typecheck verification commands can be run via `npx tsc --noEmit` and formatting validation via `npm run lint`.
+- [~] 🔵 **test_invocation** — The test suite can be invoked in a standard way for the language (e.g., `npm test`, `pytest`, `cargo test`). *(SUGGESTED)*
+  - *Justification:* Not applicable. There is no automated runtime unit test suite currently implemented for this frontend repository.
 
-- [x] 🔵 **test_most** — The test suite covers most code branches, input fields, and functionality. *(SUGGESTED)*
-  - *Estimated coverage %:* Covers 100% of component prop validations and route parameters via TypeScript typing.
+- [~] 🔵 **test_most** — The test suite covers most code branches, input fields, and functionality. *(SUGGESTED)*
+  - *Justification:* Not applicable.
 
 ### New Functionality Testing Policy
 
-- [x] 🔴 **test_policy** — The project has a general policy that new functionality must include tests in the automated test suite.
-  - *Evidence:* Specified in [CONTRIBUTING.md](CONTRIBUTING.md#3-verify-your-changes).
+- [~] 🔴 **test_policy** — The project has a general policy that new functionality must include tests in the automated test suite.
+  - *Justification:* Not applicable.
 
-- [x] 🔴 **tests_are_added** — Evidence exists that the test policy has been followed in recent major changes (e.g., PRs include tests).
-  - *Evidence URL:* Typecheck and lint validation passes on all recent commits and PR updates.
+- [~] 🔴 **tests_are_added** — Evidence exists that the test policy has been followed in recent major changes (e.g., PRs include tests).
+  - *Justification:* Not applicable.
 
-- [x] 🔵 **tests_documented_added** — The test policy is documented in contribution instructions. *(SUGGESTED)*
-  - *Evidence URL:* Documented in [CONTRIBUTING.md](CONTRIBUTING.md#3-verify-your-changes).
+- [~] 🔵 **tests_documented_added** — The test policy is documented in contribution instructions. *(SUGGESTED)*
+  - *Justification:* Not applicable.
 
 ### Linting / Warning Flags
 

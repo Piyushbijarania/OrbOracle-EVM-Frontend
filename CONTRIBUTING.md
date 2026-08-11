@@ -108,9 +108,9 @@ You must have **Node.js** (v18+) and a package manager (npm, yarn, or pnpm) inst
 
 ### 1. Create a Feature Branch
 ```bash
-git checkout -b feature/your-feature-name
+git checkout -b feat/short-desc
 # or
-git checkout -b fix/your-bug-fix
+git checkout -b fix/short-desc
 ```
 
 ### 2. Make Your Changes
@@ -131,7 +131,10 @@ npx tsc --noEmit
 ### 4. Commit Your Changes
 ```bash
 git add .
-git commit -m "feat: add composed creation forms"
+git commit -m "feat: Add composed creation forms
+
+Implement components for Multiplication and Division compositions
+and connect creation forms to the ComposedOracleFactory contract."
 ```
 
 **Commit Message Format:**
@@ -153,7 +156,7 @@ git rebase upstream/main
 
 ### 6. Push Your Changes
 ```bash
-git push origin feature/your-feature-name
+git push origin feat/short-desc
 ```
 
 ---
