@@ -282,35 +282,42 @@ export function useOracle(oracleAddress: string, targetChainId?: number) {
         let defaultSampleSize = BigInt(100)
 
         try {
-          const [fA, fB, inv, size] = await Promise.all([
-            readContract(config, {
-              address: oracleAddress as `0x${string}`,
-              abi: ComposedOracleAbi,
-              functionName: 'feedA',
-            }),
-            readContract(config, {
-              address: oracleAddress as `0x${string}`,
-              abi: ComposedOracleAbi,
-              functionName: 'feedB',
-            }),
-            readContract(config, {
-              address: oracleAddress as `0x${string}`,
-              abi: ComposedOracleAbi,
-              functionName: 'invertResult',
-            }),
-            readContract(config, {
-              address: oracleAddress as `0x${string}`,
-              abi: ComposedOracleAbi,
-              functionName: 'defaultSampleSize',
-            }),
-          ])
+          const fA = await readContract(config, {
+            address: oracleAddress as `0x${string}`,
+            abi: ComposedOracleAbi,
+            functionName: 'feedA',
+          })
           feedA = fA as string
-          feedB = fB as string
-          invertResult = inv as boolean
-          defaultSampleSize = size as bigint
           isComposed = true
         } catch (e) {
           // Standard base oracle
+        }
+
+        if (isComposed) {
+          try {
+            const [fB, inv, size] = await Promise.all([
+              readContract(config, {
+                address: oracleAddress as `0x${string}`,
+                abi: ComposedOracleAbi,
+                functionName: 'feedB',
+              }),
+              readContract(config, {
+                address: oracleAddress as `0x${string}`,
+                abi: ComposedOracleAbi,
+                functionName: 'invertResult',
+              }),
+              readContract(config, {
+                address: oracleAddress as `0x${string}`,
+                abi: ComposedOracleAbi,
+                functionName: 'defaultSampleSize',
+              }),
+            ])
+            feedB = fB as string
+            invertResult = inv as boolean
+            defaultSampleSize = size as bigint
+          } catch (e) {
+            console.error('Error fetching remaining composed oracle parameters:', e)
+          }
         }
 
         if (isComposed) {
