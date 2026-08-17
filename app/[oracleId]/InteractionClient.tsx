@@ -888,7 +888,7 @@ export default function OracleInteractionPage() {
       }
 
       const attempt = async (account?: `0x${string}`) => {
-        const { result } = await publicClient.simulateContract({
+        const result = await publicClient.readContract({
           address: oracleAddress,
           abi: OracleAbi,
           functionName: fnName,
