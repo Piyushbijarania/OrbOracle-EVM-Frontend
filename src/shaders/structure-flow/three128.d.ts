@@ -1,4 +1,9 @@
 declare module "three128" {
-  const THREE: typeof import("three");
+  const THREE: any;
+  export = THREE;
+}
+
+declare module "three" {
+  const THREE: any;
   export = THREE;
 }
