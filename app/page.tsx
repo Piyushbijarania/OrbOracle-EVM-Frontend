@@ -201,9 +201,14 @@ export default function HomePage() {
                 asChild 
                 variant="outline" 
                 size="lg" 
-                className="h-14 rounded-full px-8 bg-white/5 border border-white/10 backdrop-blur-md text-white hover:bg-white/10 hover:border-white/20 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
+                className="h-14 rounded-full px-8 bg-white/5 border border-white/20 hover:bg-white/10 hover:border-white/45 text-white transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98] shadow-lg shadow-black/20 group flex items-center gap-2"
               >
-                <Link href="/explorer">Explore Active Feeds</Link>
+                <Link href="/explorer" className="flex items-center gap-2">
+                  <span>Explore Active Feeds</span>
+                  <span className="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center group-hover:translate-x-0.5 transition-transform duration-300">
+                    <ArrowRight className="h-3 w-3 stroke-[1.5] text-white" />
+                  </span>
+                </Link>
               </Button>
             </div>
           </div>
@@ -217,6 +222,34 @@ export default function HomePage() {
         </section>
       </div>
 
+      {/* Integration Partner Ribbon */}
+      <section className="py-12 border-y border-white/5 bg-zinc-950/40 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4">
+          <p className="text-center font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase mb-6">
+            SECURED FEED INTEGRATIONS
+          </p>
+          <div className="flex flex-wrap justify-center items-center gap-12 md:gap-16 opacity-30 hover:opacity-60 transition-opacity duration-500">
+            <div className="flex items-center space-x-2 text-white">
+              <span className="font-mono font-bold tracking-tight text-sm uppercase">UNISWAP</span>
+            </div>
+            <div className="flex items-center space-x-2 text-white">
+              <span className="font-mono font-bold tracking-tight text-sm uppercase">AAVE</span>
+            </div>
+            <div className="flex items-center space-x-2 text-white">
+              <span className="font-mono font-bold tracking-tight text-sm uppercase">CHAINLINK</span>
+            </div>
+            <div className="flex items-center space-x-2 text-white">
+              <span className="font-mono font-bold tracking-tight text-sm uppercase">MAKER</span>
+            </div>
+            <div className="flex items-center space-x-2 text-white">
+              <span className="font-mono font-bold tracking-tight text-sm uppercase">BASE</span>
+            </div>
+            <div className="flex items-center space-x-2 text-white">
+              <span className="font-mono font-bold tracking-tight text-sm uppercase">ARBITRUM</span>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Core Features Bento Grid Section */}
       <section className="py-24 md:py-32 px-4 md:px-8 max-w-7xl mx-auto">
