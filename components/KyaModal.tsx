@@ -16,23 +16,24 @@ export default function KyaModal({ isOpen, onClose, onUnderstand }: KyaModalProp
 
   return (
     <div
-      className="fixed inset-0 bg-black/75 flex items-center justify-center z-[1000] p-4"
+      className="fixed inset-0 bg-black/85 flex items-center justify-center z-[1000] p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-xl"
-        style={{ backgroundColor: '#1A1B1F' }}
+        className="bg-white/5 border border-white/10 rounded-[2.5rem] p-1.5 shadow-2xl backdrop-blur-md max-w-4xl w-full max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center p-6">
-          <h2 className="text-xl font-bold text-slate-100">Know Your Assumptions</h2>
-          <button
-            onClick={onClose}
-            className="text-slate-300 hover:text-slate-100 text-2xl leading-none w-8 h-8 flex items-center justify-center transition-colors"
-          >
-            ×
-          </button>
-        </div>
+        <div className="bg-zinc-950/95 border border-white/5 rounded-[calc(2.5rem-0.5rem)] flex-grow flex flex-col overflow-y-auto">
+          {/* Header */}
+          <div className="flex justify-between items-center p-6 border-b border-white/5">
+            <h2 className="text-lg font-medium text-slate-100">Know Your Assumptions</h2>
+            <button
+              onClick={onClose}
+              className="text-slate-400 hover:text-slate-100 text-2xl leading-none w-8 h-8 flex items-center justify-center transition-colors"
+            >
+              &times;
+            </button>
+          </div>
 
         <div className="p-6 space-y-4 text-slate-200 text-sm leading-relaxed">
           <p>
@@ -184,22 +185,23 @@ export default function KyaModal({ isOpen, onClose, onUnderstand }: KyaModalProp
             .
           </p>
 
-          <div className="flex gap-3 justify-end pt-4 border-t border-blue-100">
+          <div className="flex gap-3 justify-end pt-5 border-t border-white/5 font-mono text-[9px] tracking-wider uppercase font-semibold">
             <button
               onClick={handleUnderstand}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors font-medium"
+              className="h-10 px-6 bg-white text-black hover:bg-zinc-200 transition-all duration-300 rounded-full font-bold shadow-md active:scale-[0.98]"
             >
-              I understand and I agree.
+              I understand and I agree
             </button>
             <button
               onClick={onClose}
-              className="px-6 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-md transition-colors font-medium"
+              className="h-10 px-6 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-full hover:border-white/20 transition-all duration-300 active:scale-[0.98]"
             >
               Close
             </button>
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }

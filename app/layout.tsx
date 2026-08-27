@@ -2,13 +2,13 @@
 
 import '@rainbow-me/rainbowkit/styles.css'
 import './globals.css'
+import '../src/shaders/threeui.css'
 import { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { GeistSans } from 'geist/font/sans'
+import { GeistMono } from 'geist/font/mono'
 import { ThemeProvider } from '@/providers/ThemeProvider'
 import { WalletProvider } from '@/providers/WalletProvider'
 import ClientFooter from '@/components/ClientFooter'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'OrbOracle | Decentralized Oracle Network for DeFi',
@@ -88,8 +88,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang='en'>
-      <body className={inter.className}>
+    <html lang='en' className={`${GeistSans.variable} ${GeistMono.variable}`}>
+      <body className="font-sans antialiased">
         <WalletProvider>
           <ThemeProvider
             attribute='class'

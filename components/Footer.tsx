@@ -11,45 +11,45 @@ export default function Footer({ onKyaClick, onShareClick }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="text-slate-100 border-t border-gray-700 py-5 px-8" style={{ backgroundColor: '#1A1B1F' }}>
+    <footer className="text-muted-foreground border-t border-white/5 py-8 px-6 sm:px-8 bg-zinc-950/20 backdrop-blur-[2px] relative z-10">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+          
           {/* Logo on the left */}
-          <div className="flex items-center">
+          <div className="flex items-center opacity-60 hover:opacity-100 transition-opacity duration-300">
             <a
               href="https://stability.nexus"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:opacity-80 transition-opacity"
             >
               <Image
                 src="https://stability.nexus/logo-animated.gif"
                 alt="Stability Nexus"
-                width={56}
-                height={56}
+                width={42}
+                height={42}
                 unoptimized
-                className="rounded-md"
+                className="rounded-lg grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
               />
             </a>
           </div>
 
           {/* Copyright in center */}
-          <p className="text-base text-slate-300 order-last md:order-none">
-            © 2023-{currentYear} The Stable Order. All rights reserved.
+          <p className="font-mono text-[10px] tracking-wider text-muted-foreground order-last md:order-none text-center md:text-left">
+            © 2023-{currentYear} THE STABLE ORDER. ALL RIGHTS RESERVED.
           </p>
 
           {/* Social icons and buttons on the right */}
-          <div className="flex items-center gap-4 md:gap-5">
+          <div className="flex items-center gap-3">
             {/* X (Twitter) */}
             <a
               href="https://x.com/StabilityNexus"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-slate-300 hover:bg-gray-600 hover:text-white transition-all"
+              className="w-8 h-8 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300"
               aria-label="Twitter"
             >
               <svg
-                className="w-6 h-6"
+                className="w-4 h-4"
                 fill="currentColor"
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
@@ -63,11 +63,11 @@ export default function Footer({ onKyaClick, onShareClick }: FooterProps) {
               href="https://linkedin.com/company/stability-nexus"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-slate-300 hover:bg-gray-600 hover:text-white transition-all"
+              className="w-8 h-8 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300"
               aria-label="LinkedIn"
             >
               <svg
-                className="w-6 h-6"
+                className="w-4 h-4"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
@@ -81,11 +81,11 @@ export default function Footer({ onKyaClick, onShareClick }: FooterProps) {
               href="https://github.com/StabilityNexus"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-slate-300 hover:bg-gray-600 hover:text-white transition-all"
+              className="w-8 h-8 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300"
               aria-label="GitHub"
             >
               <svg
-                className="w-6 h-6"
+                className="w-4 h-4"
                 fill="currentColor"
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
@@ -103,11 +103,11 @@ export default function Footer({ onKyaClick, onShareClick }: FooterProps) {
               href="https://t.me/StabilityNexus"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-slate-300 hover:bg-gray-600 hover:text-white transition-all"
+              className="w-8 h-8 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300"
               aria-label="Telegram"
             >
               <svg
-                className="w-6 h-6"
+                className="w-4 h-4"
                 fill="currentColor"
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
@@ -125,11 +125,11 @@ export default function Footer({ onKyaClick, onShareClick }: FooterProps) {
               href="https://discord.gg/YzDKeEfWtS"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-slate-300 hover:bg-gray-600 hover:text-white transition-all"
+              className="w-8 h-8 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300"
               aria-label="Discord"
             >
               <svg
-                className="w-6 h-6"
+                className="w-4 h-4"
                 fill="currentColor"
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
@@ -138,10 +138,13 @@ export default function Footer({ onKyaClick, onShareClick }: FooterProps) {
               </svg>
             </a>
 
+            {/* Divider */}
+            <span className="w-[1px] h-4 bg-white/10 mx-1.5" />
+
             {/* KYA Button */}
             <button
               onClick={onKyaClick}
-              className="text-slate-300 hover:text-white transition-colors text-base font-medium ml-3"
+              className="px-3 py-1.5 rounded-full border border-white/5 bg-white/5 font-mono text-[9px] uppercase tracking-widest text-muted-foreground hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300"
             >
               KYA
             </button>
@@ -150,15 +153,15 @@ export default function Footer({ onKyaClick, onShareClick }: FooterProps) {
             {onShareClick && (
               <button
                 onClick={onShareClick}
-                className="text-slate-300 hover:text-white transition-colors text-base font-medium"
+                className="px-3 py-1.5 rounded-full border border-white/5 bg-white/5 font-mono text-[9px] uppercase tracking-widest text-muted-foreground hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300"
               >
-                Share
+                SHARE
               </button>
             )}
           </div>
+
         </div>
       </div>
     </footer>
   );
 }
-
