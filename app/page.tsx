@@ -201,12 +201,12 @@ export default function HomePage() {
                 asChild 
                 variant="outline" 
                 size="lg" 
-                className="h-14 rounded-full px-8 bg-white/5 border border-white/20 hover:bg-white/10 hover:border-white/45 text-white transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98] shadow-lg shadow-black/20 group flex items-center gap-2"
+                className="h-14 rounded-full pl-6 pr-2 bg-white/5 border border-white/15 backdrop-blur-md text-white hover:bg-white/10 hover:border-white/25 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98] group flex items-center justify-between shadow-xl"
               >
-                <Link href="/explorer" className="flex items-center gap-2">
-                  <span>Explore Active Feeds</span>
-                  <span className="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center group-hover:translate-x-0.5 transition-transform duration-300">
-                    <ArrowRight className="h-3 w-3 stroke-[1.5] text-white" />
+                <Link href="/explorer">
+                  <span className="font-medium tracking-wide">Explore Active Feeds</span>
+                  <span className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:translate-x-1 group-hover:-translate-y-[1px] transition-transform duration-300">
+                    <ArrowRight className="h-4 w-4 stroke-[1.5] text-white" />
                   </span>
                 </Link>
               </Button>
