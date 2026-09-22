@@ -506,7 +506,7 @@ export default function CreateOracleIntegrated() {
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-4">
               {hashTx && (
                 <Link href={getBlockExplorerUrl(activeChainId, hashTx)} target="_blank">
-                  <Button variant="outline" className="h-10 px-6 rounded-full border-white/10 hover:bg-white/5 text-white font-mono text-[9px] tracking-wider uppercase">
+                  <Button variant="outline" className="h-11 px-6 rounded-full border-white/10 hover:bg-white/5 text-white font-mono text-xs font-medium tracking-wide uppercase transition-all">
                     View Transaction
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -514,14 +514,14 @@ export default function CreateOracleIntegrated() {
               )}
               {oracleAddress && (
                 <Link href={`/o?chainId=${activeChainId}&oracle=${oracleAddress}`}>
-                  <Button className="h-10 px-6 rounded-full bg-white hover:bg-zinc-200 text-black font-mono text-[9px] font-bold tracking-wider uppercase shadow-md">
+                  <Button className="h-11 px-6 rounded-full bg-white hover:bg-zinc-200 text-black font-mono text-xs font-semibold tracking-wide uppercase shadow-md transition-all">
                     Go to Oracle
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
               )}
               <Link href="/explorer">
-                <Button variant="outline" className="h-10 px-6 rounded-full border-white/10 hover:bg-white/5 text-white font-mono text-[9px] tracking-wider uppercase">
+                <Button variant="outline" className="h-11 px-6 rounded-full border-white/10 hover:bg-white/5 text-white font-mono text-xs font-medium tracking-wide uppercase transition-all">
                   Browse Oracles
                 </Button>
               </Link>
@@ -537,7 +537,7 @@ export default function CreateOracleIntegrated() {
       <form onSubmit={(e) => { e.preventDefault(); createOracle(); }} className="space-y-8">
         
         {/* Tab Selector */}
-        <div className="flex justify-center mb-8 max-w-4xl mx-auto gap-4">
+        <div className="flex justify-center mb-8 max-w-4xl mx-auto gap-3 sm:gap-4">
           <Button
             type="button"
             onClick={() => {
@@ -546,7 +546,7 @@ export default function CreateOracleIntegrated() {
               setOracleAddress('')
               setHashTx('')
             }}
-            className={`h-11 px-8 rounded-full border transition-all duration-300 font-mono text-[9px] tracking-widest uppercase font-semibold ${
+            className={`h-11 sm:h-12 px-6 sm:px-8 rounded-full border transition-all duration-300 font-mono text-xs sm:text-sm tracking-wide font-medium ${
               activeTab === 'base'
                 ? 'bg-white text-black border-white shadow-md'
                 : 'bg-white/5 text-muted-foreground border-white/10 hover:bg-white/10 hover:text-white'
@@ -562,7 +562,7 @@ export default function CreateOracleIntegrated() {
               setOracleAddress('')
               setHashTx('')
             }}
-            className={`h-11 px-8 rounded-full border transition-all duration-300 font-mono text-[9px] tracking-widest uppercase font-semibold ${
+            className={`h-11 sm:h-12 px-6 sm:px-8 rounded-full border transition-all duration-300 font-mono text-xs sm:text-sm tracking-wide font-medium ${
               activeTab === 'composed'
                 ? 'bg-white text-black border-white shadow-md'
                 : 'bg-white/5 text-muted-foreground border-white/10 hover:bg-white/10 hover:text-white'
@@ -1092,16 +1092,16 @@ export default function CreateOracleIntegrated() {
           <Button
             type="submit"
             disabled={loadingCreation || !account.address}
-            className="h-14 rounded-full pl-6 pr-2 bg-white text-black hover:bg-zinc-200 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98] group flex items-center justify-between space-x-4 min-w-[240px] shadow-xl"
+            className="h-12 sm:h-14 rounded-full pl-7 pr-3 bg-white text-black hover:bg-zinc-200 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.98] group flex items-center justify-between space-x-4 min-w-[260px] shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed border border-white/20"
           >
-            <span className="font-mono text-[10px] font-bold tracking-widest uppercase">
+            <span className="font-mono text-xs sm:text-sm font-bold tracking-wider uppercase">
               {loadingCreation ? 'Creating Oracle...' : !account.address ? 'Connect Wallet' : 'Create Oracle'}
             </span>
-            <span className="w-10 h-10 rounded-full bg-black/5 dark:bg-black/10 flex items-center justify-center group-hover:translate-x-1 group-hover:-translate-y-[1px] transition-transform duration-300">
+            <span className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/10 flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300 shrink-0">
               {loadingCreation ? (
                 <Loader2 className="h-4 w-4 animate-spin text-black" />
               ) : (
-                <ArrowRight className="h-4 w-4 stroke-[1.5] text-black" />
+                <ArrowRight className="h-4 w-4 stroke-[2] text-black" />
               )}
             </span>
           </Button>

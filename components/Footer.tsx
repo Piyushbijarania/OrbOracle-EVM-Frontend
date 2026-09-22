@@ -3,11 +3,11 @@
 import Image from "next/image";
 
 interface FooterProps {
-  onKyaClick: () => void;
+  onTermsClick: () => void;
   onShareClick?: () => void;
 }
 
-export default function Footer({ onKyaClick, onShareClick }: FooterProps) {
+export default function Footer({ onTermsClick, onShareClick }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -34,18 +34,18 @@ export default function Footer({ onKyaClick, onShareClick }: FooterProps) {
           </div>
 
           {/* Copyright in center */}
-          <p className="font-mono text-[10px] tracking-wider text-muted-foreground order-last md:order-none text-center md:text-left">
+          <p className="font-mono text-xs tracking-wider text-muted-foreground order-last md:order-none text-center md:text-left">
             © 2023-{currentYear} THE STABLE ORDER. ALL RIGHTS RESERVED.
           </p>
 
           {/* Social icons and buttons on the right */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap justify-center md:justify-end items-center gap-2.5 sm:gap-3">
             {/* X (Twitter) */}
             <a
               href="https://x.com/StabilityNexus"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300"
+              className="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-white/25 hover:bg-white/10 transition-all duration-300"
               aria-label="Twitter"
             >
               <svg
@@ -63,7 +63,7 @@ export default function Footer({ onKyaClick, onShareClick }: FooterProps) {
               href="https://linkedin.com/company/stability-nexus"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300"
+              className="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-white/25 hover:bg-white/10 transition-all duration-300"
               aria-label="LinkedIn"
             >
               <svg
@@ -81,7 +81,7 @@ export default function Footer({ onKyaClick, onShareClick }: FooterProps) {
               href="https://github.com/StabilityNexus"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300"
+              className="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-white/25 hover:bg-white/10 transition-all duration-300"
               aria-label="GitHub"
             >
               <svg
@@ -103,7 +103,7 @@ export default function Footer({ onKyaClick, onShareClick }: FooterProps) {
               href="https://t.me/StabilityNexus"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300"
+              className="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-white/25 hover:bg-white/10 transition-all duration-300"
               aria-label="Telegram"
             >
               <svg
@@ -125,7 +125,7 @@ export default function Footer({ onKyaClick, onShareClick }: FooterProps) {
               href="https://discord.gg/YzDKeEfWtS"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300"
+              className="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-white/25 hover:bg-white/10 transition-all duration-300"
               aria-label="Discord"
             >
               <svg
@@ -139,21 +139,21 @@ export default function Footer({ onKyaClick, onShareClick }: FooterProps) {
             </a>
 
             {/* Divider */}
-            <span className="w-[1px] h-4 bg-white/10 mx-1.5" />
+            <span className="hidden sm:inline-block w-[1px] h-4 bg-white/10 mx-1" />
 
-            {/* KYA Button */}
+            {/* Terms of Use Button */}
             <button
-              onClick={onKyaClick}
-              className="px-3 py-1.5 rounded-full border border-white/5 bg-white/5 font-mono text-[9px] uppercase tracking-widest text-muted-foreground hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300"
+              onClick={onTermsClick}
+              className="px-3.5 py-1.5 rounded-full border border-white/10 bg-white/5 font-mono text-xs uppercase tracking-wider text-muted-foreground hover:text-white hover:border-white/25 hover:bg-white/10 transition-all duration-300 font-medium cursor-pointer"
             >
-              KYA
+              TERMS OF USE
             </button>
 
             {/* Share Button */}
             {onShareClick && (
               <button
                 onClick={onShareClick}
-                className="px-3 py-1.5 rounded-full border border-white/5 bg-white/5 font-mono text-[9px] uppercase tracking-widest text-muted-foreground hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300"
+                className="px-3.5 py-1.5 rounded-full border border-white/10 bg-white/5 font-mono text-xs uppercase tracking-wider text-muted-foreground hover:text-white hover:border-white/25 hover:bg-white/10 transition-all duration-300 font-medium cursor-pointer"
               >
                 SHARE
               </button>

@@ -1412,7 +1412,7 @@ export default function OracleInteractionPage() {
                 <div className="space-y-3 pt-2">
                   <div className="flex items-center justify-between p-3 bg-black/40 border border-white/5 rounded-xl">
                     <div className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                       <span className="text-zinc-400 font-mono text-[9px] uppercase tracking-wider">Latest Value</span>
                       <span className="text-white font-mono text-xs font-semibold ml-1">{latestValue || "—"}</span>
                     </div>

@@ -18,9 +18,9 @@ export function OracleCard({ oracle }: OracleCardProps) {
   return (
     <Link href={oracleUrl} className="group block">
       {/* Double Bezel Glass Wrapper */}
-      <div className="bg-white/5 border border-white/10 rounded-[2rem] p-1.5 transition-all duration-500 hover:border-primary/20 backdrop-blur-[2px] shadow-xl hover:-translate-y-1">
+      <div className="bg-zinc-950/80 border border-zinc-800/80 rounded-[2rem] p-1.5 transition-all duration-500 hover:border-zinc-700 shadow-xl hover:-translate-y-1">
         {/* Inner Core */}
-        <div className="bg-zinc-950/40 rounded-[calc(2rem-0.5rem)] p-6 border border-white/5 flex flex-col justify-between space-y-6">
+        <div className="bg-black/80 rounded-[calc(2rem-0.5rem)] p-6 border border-zinc-900 flex flex-col justify-between space-y-6">
           
           <div className="flex items-start justify-between">
             <div className="flex-1 space-y-2">

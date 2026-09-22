@@ -78,12 +78,12 @@ export default function ExplorerPage() {
         </div>
 
         {/* Feed Type Filter Pills */}
-        <div className="flex justify-center gap-3 mb-16 font-mono text-[9px] tracking-[0.15em] uppercase font-semibold">
+        <div className="flex flex-wrap justify-center gap-3 mb-16 font-mono text-xs tracking-wider uppercase font-semibold">
           {(["all", "base", "composed"] as const).map((type) => (
             <button
               key={type}
               onClick={() => setFilterType(type)}
-              className={`h-9 px-6 rounded-full border transition-all duration-300 ${
+              className={`h-10 px-6 sm:px-7 rounded-full border transition-all duration-300 ${
                 filterType === type
                   ? "bg-white text-black border-white shadow-md"
                   : "bg-white/5 text-muted-foreground border-white/10 hover:bg-white/10 hover:text-white"

@@ -30,6 +30,19 @@ export function Navigation() {
     setMenuOpen(false)
   }, [pathname])
 
+  const checkActive = (href: string) => {
+    if (href === '/') {
+      return pathname === '/'
+    }
+    if (href === '/create') {
+      return pathname === '/create' || pathname?.startsWith('/create/')
+    }
+    if (href === '/explorer') {
+      return pathname === '/explorer' || pathname?.startsWith('/explorer/') || (pathname !== '/' && !pathname?.startsWith('/create'))
+    }
+    return pathname === href
+  }
+
   return (
     <div className={`fixed top-0 left-0 right-0 z-50 pointer-events-none flex justify-center transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
       scrolled ? "pt-6 px-4" : "pt-0 px-0"
@@ -44,38 +57,25 @@ export function Navigation() {
         {/* Main Row */}
         <div className={`flex items-center justify-between w-full transition-all duration-500 shrink-0 ${scrolled ? "h-[50px]" : "h-[50px] sm:h-[66px]"}`}>
           
-          {/* Brand Logo (Left) */}
+          {/* Brand Title (Left) */}
           <div className="flex-1 flex justify-start">
             <Link 
               href="/" 
-              className="w-9.5 h-9.5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center transition-all hover:bg-white/10 hover:border-primary/40 group"
+              className="font-mono text-xs sm:text-sm font-bold tracking-wider text-white hover:text-primary transition-colors flex items-center select-none"
             >
-              <svg viewBox="0 0 32 32" className="w-[22px] h-[22px] fill-none stroke-current text-white transition-transform duration-500 group-hover:rotate-[180deg]">
-                <defs>
-                  <radialGradient id="logo-glow" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.8"/>
-                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0"/>
-                  </radialGradient>
-                </defs>
-                <circle cx="16" cy="16" r="12" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" className="opacity-30" />
-                <ellipse cx="16" cy="16" rx="12" ry="5" stroke="currentColor" strokeWidth="1" className="opacity-50" transform="rotate(-30 16 16)" />
-                <circle cx="16" cy="16" r="6" fill="url(#logo-glow)" />
-                <circle cx="16" cy="16" r="2.5" fill="currentColor" />
-                <circle cx="6" cy="10" r="1.2" fill="currentColor" />
-                <circle cx="26" cy="22" r="1" fill="currentColor" />
-              </svg>
+              ORB ORACLE
             </Link>
           </div>
 
           {/* Desktop Center Links (Hidden on mobile < md) */}
           <div className="hidden md:flex items-center space-x-1">
             {navItems.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = checkActive(item.href);
               return (
                 <Link 
                   key={item.href}
                   href={item.href}
-                  className={`px-3 py-1.5 rounded-full font-mono text-[9.5px] tracking-widest transition-all duration-300 ${
+                  className={`px-3.5 py-1.5 rounded-full font-mono text-xs tracking-wider transition-all duration-300 ${
                     isActive 
                       ? "text-black bg-white font-semibold shadow-md" 
                       : "text-muted-foreground hover:text-white hover:bg-white/5"
@@ -120,7 +120,7 @@ export function Navigation() {
                             <button 
                               onClick={openConnectModal} 
                               type="button"
-                              className="h-8 px-4 rounded-full bg-white text-black font-mono text-[9px] font-bold tracking-wider hover:bg-zinc-200 active:scale-[0.98] transition-all duration-300 shadow-md"
+                              className="h-8 px-4 rounded-full bg-white text-black font-mono text-xs font-semibold tracking-wider hover:bg-zinc-200 active:scale-[0.98] transition-all duration-300 shadow-md"
                             >
                               CONNECT
                             </button>
@@ -132,7 +132,7 @@ export function Navigation() {
                             <button 
                               onClick={openChainModal} 
                               type="button"
-                              className="h-8 px-4 rounded-full bg-red-500 text-white font-mono text-[9px] font-bold tracking-wider hover:bg-red-600 active:scale-[0.98] transition-all duration-300 shadow-md"
+                              className="h-8 px-4 rounded-full bg-red-500 text-white font-mono text-xs font-bold tracking-wider hover:bg-red-600 active:scale-[0.98] transition-all duration-300 shadow-md"
                             >
                               WRONG NET
                             </button>
@@ -145,24 +145,24 @@ export function Navigation() {
                               onClick={openChainModal}
                               style={{ display: 'flex', alignItems: 'center' }}
                               type="button"
-                              className="h-8 px-2.5 rounded-full bg-zinc-900 border border-white/5 text-white font-mono text-[9.5px] tracking-wider hover:bg-zinc-800 transition-all duration-300"
+                              className="h-8 px-3 rounded-full bg-zinc-900 border border-white/5 text-white font-mono text-xs tracking-wider hover:bg-zinc-800 transition-all duration-300"
                             >
                               {chain.hasIcon && (
                                 <div
                                   style={{
                                     background: chain.iconBackground,
-                                    width: 10,
-                                    height: 10,
+                                    width: 12,
+                                    height: 12,
                                     borderRadius: 999,
                                     overflow: 'hidden',
-                                    marginRight: 3,
+                                    marginRight: 4,
                                   }}
                                 >
                                   {chain.iconUrl && (
                                     <img
                                       alt={chain.name ?? 'Chain icon'}
                                       src={chain.iconUrl}
-                                      style={{ width: 10, height: 10 }}
+                                      style={{ width: 12, height: 12 }}
                                     />
                                   )}
                                 </div>
@@ -174,7 +174,7 @@ export function Navigation() {
                             <button 
                               onClick={openAccountModal} 
                               type="button"
-                              className="h-8 px-3 rounded-full bg-white text-black font-mono text-[9.5px] font-bold tracking-wider hover:bg-zinc-200 active:scale-[0.98] transition-all duration-300 shadow-md"
+                              className="h-8 px-3.5 rounded-full bg-white text-black font-mono text-xs font-semibold tracking-wider hover:bg-zinc-200 active:scale-[0.98] transition-all duration-300 shadow-md"
                             >
                               {account.displayName}
                             </button>
@@ -206,12 +206,12 @@ export function Navigation() {
             {/* Nav Items Link List */}
             <div className="flex flex-col items-center space-y-2 w-full">
               {navItems.map((item) => {
-                const isActive = pathname === item.href;
+                const isActive = checkActive(item.href);
                 return (
                   <Link 
                     key={item.href}
                     href={item.href}
-                    className={`w-full text-center py-2 rounded-xl font-mono text-[9.5px] tracking-widest transition-all duration-300 ${
+                    className={`w-full text-center py-2 rounded-xl font-mono text-xs tracking-wider transition-all duration-300 ${
                       isActive 
                         ? "text-black bg-white font-semibold shadow-md" 
                         : "text-muted-foreground hover:text-white hover:bg-white/5"
@@ -242,7 +242,7 @@ export function Navigation() {
                       <button 
                         onClick={openConnectModal} 
                         type="button"
-                        className="w-full h-10 rounded-xl bg-white text-black font-mono text-[9.5px] font-bold tracking-wider hover:bg-zinc-200 active:scale-[0.98] transition-all duration-300 shadow-md"
+                        className="w-full h-10 rounded-xl bg-white text-black font-mono text-xs font-bold tracking-wider hover:bg-zinc-200 active:scale-[0.98] transition-all duration-300 shadow-md"
                       >
                         CONNECT WALLET
                       </button>
@@ -254,7 +254,7 @@ export function Navigation() {
                       <button 
                         onClick={openChainModal} 
                         type="button"
-                        className="w-full h-10 rounded-xl bg-red-500 text-white font-mono text-[9.5px] font-bold tracking-wider hover:bg-red-600 active:scale-[0.98] transition-all duration-300 shadow-md"
+                        className="w-full h-10 rounded-xl bg-red-500 text-white font-mono text-xs font-bold tracking-wider hover:bg-red-600 active:scale-[0.98] transition-all duration-300 shadow-md"
                       >
                         WRONG NETWORK
                       </button>
@@ -267,7 +267,7 @@ export function Navigation() {
                         onClick={openChainModal}
                         style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                         type="button"
-                        className="w-full h-10 px-3 rounded-xl bg-zinc-900 border border-white/5 text-white font-mono text-[9.5px] tracking-wider hover:bg-zinc-800 transition-all duration-300"
+                        className="w-full h-10 px-3 rounded-xl bg-zinc-900 border border-white/5 text-white font-mono text-xs tracking-wider hover:bg-zinc-800 transition-all duration-300"
                       >
                         {chain.hasIcon && chain.iconUrl && (
                           <img
@@ -282,7 +282,7 @@ export function Navigation() {
                       <button 
                         onClick={openAccountModal} 
                         type="button"
-                        className="w-full h-10 px-4 rounded-xl bg-white text-black font-mono text-[9.5px] font-bold tracking-wider hover:bg-zinc-200 active:scale-[0.98] transition-all duration-300 shadow-md"
+                        className="w-full h-10 px-4 rounded-xl bg-white text-black font-mono text-xs font-bold tracking-wider hover:bg-zinc-200 active:scale-[0.98] transition-all duration-300 shadow-md"
                       >
                         {account.displayName}
                       </button>
