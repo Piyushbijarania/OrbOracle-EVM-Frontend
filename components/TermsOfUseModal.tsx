@@ -86,6 +86,184 @@ In these Terms:
 
 For the full detailed terms, visit: https://github.com/StabilityNexus/Info/blob/main/TermsOfUse.md`;
 
+// Inline text renderer for links, bold, italic, and code tokens
+function renderInlineMarkdown(text: string) {
+  // Tokenize bold, italic, inline code, markdown links, and raw URLs
+  const tokenRegex = /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|\[[^\]]+\]\([^)]+\)|https?:\/\/[^\s)]+)/g;
+  const parts = text.split(tokenRegex);
+
+  return parts.map((part, index) => {
+    if (!part) return null;
+
+    // Bold: **text**
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return (
+        <strong key={index} className="text-white font-semibold">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+
+    // Italic: *text*
+    if (part.startsWith("*") && part.endsWith("*")) {
+      return (
+        <em key={index} className="text-zinc-200 italic">
+          {part.slice(1, -1)}
+        </em>
+      );
+    }
+
+    // Code: `code`
+    if (part.startsWith("`") && part.endsWith("`")) {
+      return (
+        <code key={index} className="px-1.5 py-0.5 rounded bg-white/10 text-primary font-mono text-[11px]">
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+
+    // Markdown Link: [text](url)
+    const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (linkMatch) {
+      return (
+        <a
+          key={index}
+          href={linkMatch[2]}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary hover:underline underline-offset-2 break-all font-medium inline-flex items-center gap-0.5"
+        >
+          {linkMatch[1]}
+        </a>
+      );
+    }
+
+    // Raw URL: https://...
+    if (part.startsWith("http://") || part.startsWith("https://")) {
+      return (
+        <a
+          key={index}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary hover:underline underline-offset-2 break-all font-medium inline-flex items-center gap-0.5"
+        >
+          {part}
+        </a>
+      );
+    }
+
+    return <span key={index}>{part}</span>;
+  });
+}
+
+// Full Markdown document renderer
+function MarkdownDocumentRenderer({ markdown }: { markdown: string }) {
+  const lines = markdown.split("\n");
+  const elements: React.ReactNode[] = [];
+  let currentListItems: string[] = [];
+
+  const flushList = () => {
+    if (currentListItems.length > 0) {
+      const listKey = `ul-${elements.length}`;
+      elements.push(
+        <ul key={listKey} className="my-3 space-y-2 pl-2">
+          {currentListItems.map((item, i) => (
+            <li key={i} className="flex items-start gap-2.5 text-zinc-300 text-xs sm:text-sm leading-relaxed">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+              <div>{renderInlineMarkdown(item)}</div>
+            </li>
+          ))}
+        </ul>
+      );
+      currentListItems = [];
+    }
+  };
+
+  lines.forEach((line, index) => {
+    const trimmed = line.trim();
+
+    // Horizontal Rule: --- or ***
+    if (trimmed === "---" || trimmed === "***") {
+      flushList();
+      elements.push(<hr key={`hr-${index}`} className="border-white/10 my-4" />);
+      return;
+    }
+
+    // Heading 1: # Heading
+    if (trimmed.startsWith("# ")) {
+      flushList();
+      elements.push(
+        <h1 key={`h1-${index}`} className="text-lg sm:text-xl font-bold text-white tracking-tight pb-2.5 border-b border-white/10 mt-2 mb-4 flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-primary inline-block" />
+          {renderInlineMarkdown(trimmed.slice(2))}
+        </h1>
+      );
+      return;
+    }
+
+    // Heading 2: ## Heading
+    if (trimmed.startsWith("## ")) {
+      flushList();
+      elements.push(
+        <h2 key={`h2-${index}`} className="text-sm sm:text-base font-semibold text-white tracking-tight mt-6 mb-3 pt-3 border-t border-white/5">
+          {renderInlineMarkdown(trimmed.slice(3))}
+        </h2>
+      );
+      return;
+    }
+
+    // Heading 3: ### Heading
+    if (trimmed.startsWith("### ")) {
+      flushList();
+      elements.push(
+        <h3 key={`h3-${index}`} className="text-xs sm:text-sm font-semibold text-zinc-200 mt-4 mb-2">
+          {renderInlineMarkdown(trimmed.slice(4))}
+        </h3>
+      );
+      return;
+    }
+
+    // List Item: - item or * item
+    if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+      currentListItems.push(trimmed.slice(2));
+      return;
+    }
+
+    // Empty Line
+    if (trimmed === "") {
+      flushList();
+      return;
+    }
+
+    // Numbered Clause / Standard Paragraph
+    flushList();
+    const clauseMatch = trimmed.match(/^(\d+\.\d+|\d+\.)\s+(.+)$/);
+    if (clauseMatch) {
+      elements.push(
+        <div key={`p-${index}`} className="my-2.5 flex items-start gap-2 text-zinc-300 text-xs sm:text-sm leading-relaxed">
+          <span className="font-mono text-xs font-semibold text-primary/90 bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20 shrink-0 select-none">
+            {clauseMatch[1]}
+          </span>
+          <div className="flex-1">
+            {renderInlineMarkdown(clauseMatch[2])}
+          </div>
+        </div>
+      );
+    } else {
+      elements.push(
+        <p key={`p-${index}`} className="my-2.5 text-zinc-300 text-xs sm:text-sm leading-relaxed">
+          {renderInlineMarkdown(trimmed)}
+        </p>
+      );
+    }
+  });
+
+  flushList();
+
+  return <div className="space-y-1 font-sans">{elements}</div>;
+}
+
 export default function TermsOfUseModal({ isOpen, onClose, onAccept }: TermsOfUseModalProps) {
   const [content, setContent] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
@@ -155,17 +333,17 @@ export default function TermsOfUseModal({ isOpen, onClose, onAccept }: TermsOfUs
             </button>
           </div>
 
-          {/* Body: Scrollable Textbox */}
+          {/* Body: Rendered Markdown Document */}
           <div className="p-6 flex-grow flex flex-col overflow-hidden space-y-5">
             
-            <div className="flex-grow overflow-y-auto max-h-[48vh] p-4 bg-black/60 border border-white/10 rounded-2xl font-mono text-xs text-zinc-300 leading-relaxed whitespace-pre-wrap select-text shadow-inner">
+            <div className="flex-grow overflow-y-auto max-h-[50vh] p-5 sm:p-6 bg-black/60 border border-white/10 rounded-2xl select-text shadow-inner scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-16 space-y-3 text-muted-foreground">
                   <Loader2 className="w-5 h-5 animate-spin text-primary" />
                   <span className="font-mono text-xs">Fetching latest Terms of Use from GitHub...</span>
                 </div>
               ) : (
-                content
+                <MarkdownDocumentRenderer markdown={content} />
               )}
             </div>
 

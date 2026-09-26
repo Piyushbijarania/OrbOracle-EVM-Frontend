@@ -1578,7 +1578,7 @@ export default function OracleInteractionPage() {
                     <h3 className="font-mono text-xs uppercase tracking-wider text-white">Staking Governance</h3>
                   </div>
                   <p className="text-xs text-zinc-400 leading-relaxed">
-                    Vote to blacklist or whitelist data nodes. Voting power is determined by your staked weight.
+                    Vote to blacklist or whitelist consumers. Staked weight token holders vote to prevent free-riding protocols from reading oracle values without fulfilling usage terms.
                   </p>
 
                   <div className="space-y-3 pt-2">

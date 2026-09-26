@@ -12,9 +12,9 @@ export function Navigation() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   const navItems = [
-    { label: 'HOME', href: '/' },
-    { label: 'EXPLORER', href: '/explorer' },
-    { label: 'CREATE', href: '/create' }
+    { label: 'USE', href: '/use' },
+    { label: 'DEPLOY', href: '/deploy' },
+    { label: 'OPERATE', href: '/operate' }
   ]
 
   useEffect(() => {
@@ -31,14 +31,14 @@ export function Navigation() {
   }, [pathname])
 
   const checkActive = (href: string) => {
-    if (href === '/') {
-      return pathname === '/'
+    if (href === '/deploy') {
+      return pathname === '/deploy' || pathname?.startsWith('/deploy/') || pathname === '/create' || pathname?.startsWith('/create/')
     }
-    if (href === '/create') {
-      return pathname === '/create' || pathname?.startsWith('/create/')
+    if (href === '/use') {
+      return pathname === '/use' || pathname?.startsWith('/use/') || pathname === '/explorer' || pathname?.startsWith('/explorer/') || pathname === '/o' || pathname?.startsWith('/o/')
     }
-    if (href === '/explorer') {
-      return pathname === '/explorer' || pathname?.startsWith('/explorer/') || (pathname !== '/' && !pathname?.startsWith('/create'))
+    if (href === '/operate') {
+      return pathname === '/operate' || pathname?.startsWith('/operate/')
     }
     return pathname === href
   }

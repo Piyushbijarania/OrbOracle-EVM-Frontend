@@ -178,11 +178,10 @@ export default function CreateOracleIntegrated() {
   // Base Oracle parameters
   const [name, setName] = useState<string>('')
   const [description, setDescription] = useState<string>('')
-  const [owner, setOwner] = useState<string>('')
   const [weightToken, setWeightToken] = useState<string>('')
-  const [reward, setReward] = useState<string>('1000')
+  const [rewardPercent, setRewardPercent] = useState<string>('1.0')
   const [halfLifeSeconds, setHalfLifeSeconds] = useState<string>('3600')
-  const [quorumBps, setQuorumBps] = useState<string>('2000')
+  const [quorumPercent, setQuorumPercent] = useState<string>('20')
   const [depositLock, setDepositLock] = useState<string>('3600')
   const [withdrawLock, setWithdrawLock] = useState<string>('3600')
   const [alpha, setAlpha] = useState<string>('1')
@@ -212,7 +211,6 @@ export default function CreateOracleIntegrated() {
   const [errors, setErrors] = useState<{
     name?: string
     description?: string
-    owner?: string
     weightToken?: string
     reward?: string
     halfLifeSeconds?: string
@@ -226,13 +224,6 @@ export default function CreateOracleIntegrated() {
     composedSampleSize?: string
   }>({})
 
-  // Pre-fill owner with connected wallet address
-  useEffect(() => {
-    if (account.address && !owner) {
-      setOwner(account.address)
-    }
-  }, [account.address, owner])
-
   // Reset form when chain changes
   useEffect(() => {
     setSubmitted(false)
@@ -245,24 +236,24 @@ export default function CreateOracleIntegrated() {
       name || "Unnamed Oracle",                                                    // name
       description || "No description provided",                                   // description
       (weightToken || "0x0000000000000000000000000000000000000000") as `0x${string}`, // weightToken
-      BigInt(Number(halfLifeSeconds || 0)),                                       // halfLifeSeconds
-      BigInt(Number(quorumBps || 0)),                                             // q
-      BigInt(Number(depositLock || 0)),                                           // depositLockingPeriod
-      BigInt(Number(withdrawLock || 0)),                                          // withdrawalLockingPeriod
-      BigInt(Number(reward || 0)),                                                // rewardBps
+      BigInt(Math.round(Number(halfLifeSeconds || 0))),                                       // halfLifeSeconds
+      BigInt(Math.round(Number(quorumPercent || 0) * 100)),                                   // q (percentage -> basis points)
+      BigInt(Math.round(Number(depositLock || 0))),                                           // depositLockingPeriod
+      BigInt(Math.round(Number(withdrawLock || 0))),                                          // withdrawalLockingPeriod
+      BigInt(Math.round(Number(rewardPercent || 0) * 1000)),                                  // rewardBps (percentage -> 1e5 scale)
       BigInt(alpha && /^\d+$/.test(alpha) ? alpha : "0"),                         // gamma
       BigInt(defaultSampleSize && /^\d+$/.test(defaultSampleSize) ? defaultSampleSize : "100"), // defaultSampleSize
     ] as const
-  }, [name, description, weightToken, reward, halfLifeSeconds, quorumBps, depositLock, withdrawLock, alpha, defaultSampleSize])
+  }, [name, description, weightToken, rewardPercent, halfLifeSeconds, quorumPercent, depositLock, withdrawLock, alpha, defaultSampleSize])
 
   const validateInputs = () => {
     const newErrors: any = {}
 
     if (activeTab === 'composed') {
-      if (!feedAAddress) newErrors.feedAAddress = 'Parent Feed A is required'
-      if (!feedBAddress) newErrors.feedBAddress = 'Parent Feed B is required'
+      if (!feedAAddress) newErrors.feedAAddress = 'Parent Oracle A is required'
+      if (!feedBAddress) newErrors.feedBAddress = 'Parent Oracle B is required'
       if (feedAAddress && feedBAddress && feedAAddress.toLowerCase() === feedBAddress.toLowerCase()) {
-        newErrors.feedBAddress = 'Parent Feed B cannot be the same as Parent Feed A'
+        newErrors.feedBAddress = 'Parent Oracle B cannot be the same as Parent Oracle A'
       }
       if (!composedSampleSize) {
         newErrors.composedSampleSize = 'Default sample size is required'
@@ -272,19 +263,19 @@ export default function CreateOracleIntegrated() {
     } else {
       if (!name) newErrors.name = 'Oracle name is required'
       if (!description) newErrors.description = 'Description is required'
-      if (!owner) newErrors.owner = 'Owner address is required'
-      if (!weightToken) newErrors.weightToken = 'Weight token address is required'
-      if (!reward) newErrors.reward = 'Reward is required'
+      if (!weightToken) newErrors.weightToken = 'Oracle operator token address is required'
+      if (!rewardPercent) newErrors.reward = 'Reward percentage is required'
+      else if (Number(rewardPercent) < 0 || Number(rewardPercent) > 100) newErrors.reward = 'Reward must be between 0% and 100%'
+
       if (!halfLifeSeconds) newErrors.halfLifeSeconds = 'Half life seconds is required'
-      if (!quorumBps) newErrors.quorumBps = 'Quorum is required'
       if (!depositLock) newErrors.depositLock = 'Deposit lock period is required'
       if (!withdrawLock) newErrors.withdrawLock = 'Withdrawal lock period is required'
       if (!alpha) newErrors.alpha = 'Alpha is required'
       if (!defaultSampleSize) newErrors.defaultSampleSize = 'Default sample size is required'
+      else if (Number(defaultSampleSize) <= 0) newErrors.defaultSampleSize = 'Default sample size must be greater than 0'
 
-      if (Number(reward) < 0) newErrors.reward = 'Reward cannot be negative'
-      if (Number(defaultSampleSize) <= 0) newErrors.defaultSampleSize = 'Default sample size must be greater than 0'
-      if (Number(quorumBps) < 0 || Number(quorumBps) > 10000) newErrors.quorumBps = 'Quorum must be between 0 and 10000'
+      if (!quorumPercent) newErrors.quorumBps = 'Quorum percentage is required'
+      else if (Number(quorumPercent) < 0 || Number(quorumPercent) > 100) newErrors.quorumBps = 'Quorum must be between 0% and 100%'
     }
 
     setErrors(newErrors)
@@ -552,7 +543,7 @@ export default function CreateOracleIntegrated() {
                 : 'bg-white/5 text-muted-foreground border-white/10 hover:bg-white/10 hover:text-white'
             }`}
           >
-            Base Price Feed
+            Base Oracle
           </Button>
           <Button
             type="button"
@@ -568,7 +559,7 @@ export default function CreateOracleIntegrated() {
                 : 'bg-white/5 text-muted-foreground border-white/10 hover:bg-white/10 hover:text-white'
             }`}
           >
-            Composed Price Feed
+            Composed Oracle
           </Button>
         </div>
 
@@ -584,7 +575,7 @@ export default function CreateOracleIntegrated() {
               <div className="space-y-1">
                 <div className="flex items-center gap-2 mb-2 relative">
                   <Label htmlFor="feedA" className="font-mono text-[10.5px] tracking-wider text-muted-foreground uppercase">
-                    Parent Feed A (Base) *
+                    Parent Oracle A (Base) *
                   </Label>
                   <button
                     type="button"
@@ -596,7 +587,7 @@ export default function CreateOracleIntegrated() {
                   </button>
                   {showTooltip === 'feedA' && (
                     <div className="absolute bottom-full mb-2 left-0 z-50 bg-zinc-950 border border-white/10 text-white font-mono text-[9.5px] rounded-lg p-2.5 shadow-xl max-w-xs pointer-events-none">
-                      The first parent price feed contract address to compose.
+                      The first parent oracle contract address to compose.
                     </div>
                   )}
                 </div>
@@ -604,7 +595,7 @@ export default function CreateOracleIntegrated() {
                   value={feedAAddress}
                   onChange={(address) => setFeedAAddress(address)}
                   options={baseOracles}
-                  placeholder="Select Parent Feed A"
+                  placeholder="Select Parent Oracle A"
                   error={errors.feedAAddress}
                 />
                 {errors.feedAAddress && <p className="text-red-400 text-xs">{errors.feedAAddress}</p>}
@@ -613,7 +604,7 @@ export default function CreateOracleIntegrated() {
               <div className="space-y-1">
                 <div className="flex items-center gap-2 mb-2 relative">
                   <Label htmlFor="feedB" className="font-mono text-[10.5px] tracking-wider text-muted-foreground uppercase">
-                    Parent Feed B (Base) *
+                    Parent Oracle B (Base) *
                   </Label>
                   <button
                     type="button"
@@ -625,7 +616,7 @@ export default function CreateOracleIntegrated() {
                   </button>
                   {showTooltip === 'feedB' && (
                     <div className="absolute bottom-full mb-2 left-0 z-50 bg-zinc-950 border border-white/10 text-white font-mono text-[9.5px] rounded-lg p-2.5 shadow-xl max-w-xs pointer-events-none">
-                      The second parent price feed contract address to compose.
+                      The second parent oracle contract address to compose.
                     </div>
                   )}
                 </div>
@@ -633,7 +624,7 @@ export default function CreateOracleIntegrated() {
                   value={feedBAddress}
                   onChange={(address) => setFeedBAddress(address)}
                   options={baseOracles}
-                  placeholder="Select Parent Feed B"
+                  placeholder="Select Parent Oracle B"
                   error={errors.feedBAddress}
                 />
                 {errors.feedBAddress && <p className="text-red-400 text-xs">{errors.feedBAddress}</p>}
@@ -787,35 +778,6 @@ export default function CreateOracleIntegrated() {
                   />
                   {errors.description && <p className="text-red-400 text-xs">{errors.description}</p>}
                 </div>
-                <div className="space-y-1 col-span-2">
-                  <div className="flex items-center gap-2 relative">
-                    <Label htmlFor="owner" className="font-mono text-[10.5px] tracking-wider text-muted-foreground uppercase">
-                      Owner Address *
-                    </Label>
-                    <button
-                      type="button"
-                      className="text-slate-300 hover:text-slate-100 transition-colors"
-                      onMouseEnter={() => setShowTooltip('owner')}
-                      onMouseLeave={() => setShowTooltip(null)}
-                    >
-                      <Info className="h-3 w-3" />
-                    </button>
-                    {showTooltip === 'owner' && (
-                      <div className="absolute bottom-full mb-2 left-0 z-50 bg-zinc-950 border border-white/10 text-white font-mono text-[9.5px] rounded-lg p-2.5 shadow-xl max-w-xs pointer-events-none">
-                        Address of the owner who can whitelist/blacklist participants
-                      </div>
-                    )}
-                  </div>
-                  <Input
-                    id="owner"
-                    placeholder="0x..."
-                    value={owner}
-                    onChange={(e) => setOwner(e.target.value)}
-                    required
-                    className={`bg-zinc-950/50 border border-white/10 focus:border-primary/45 focus:ring-0 text-white rounded-xl h-11 px-4 font-mono text-xs placeholder:text-muted-foreground/60 w-full ${errors.owner ? 'border-red-500' : ''}`}
-                  />
-                  {errors.owner && <p className="text-red-400 text-xs">{errors.owner}</p>}
-                </div>
               </div>
             </div>
           </div>
@@ -831,7 +793,7 @@ export default function CreateOracleIntegrated() {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 mb-2 relative">
                     <Label htmlFor="weightToken" className="font-mono text-[10.5px] tracking-wider text-muted-foreground uppercase">
-                      Weight Token (ERC20) *
+                      Oracle Operator Token (ERC20) *
                     </Label>
                     <button
                       type="button"
@@ -843,7 +805,7 @@ export default function CreateOracleIntegrated() {
                     </button>
                     {showTooltip === 'weightToken' && (
                       <div className="absolute bottom-full mb-2 left-0 z-50 bg-zinc-950 border border-white/10 text-white font-mono text-[9.5px] rounded-lg p-2.5 shadow-xl max-w-xs pointer-events-none">
-                        ERC20 token address used for voting weight calculation. You can select from supported tokens or enter a custom address.
+                        Enter the address of the ERC20 token that is, or will be, held by oracle operators. Or select it from a list of known tokens. The weight of values submitted by an oracle operator is proportional to the operator's token balance.
                       </div>
                     )}
                   </div>
@@ -860,7 +822,7 @@ export default function CreateOracleIntegrated() {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 mb-2 relative">
                     <Label htmlFor="reward" className="font-mono text-[10.5px] tracking-wider text-muted-foreground uppercase">
-                      Reward (out of 1e5) *
+                      Reward Percentage *
                     </Label>
                     <button
                       type="button"
@@ -872,27 +834,34 @@ export default function CreateOracleIntegrated() {
                     </button>
                     {showTooltip === 'reward' && (
                       <div className="absolute bottom-full mb-2 left-0 z-50 bg-zinc-950 border border-white/10 text-white font-mono text-[9.5px] rounded-lg p-2.5 shadow-xl max-w-xs pointer-events-none">
-                        Example: 1000 = 1.000% of contract balance per reward slice
+                        Percentage of the oracle balance paid as reward per value submission (e.g., 1.25% = 1,250 / 100,000).
                       </div>
                     )}
                   </div>
-                  <Input
-                    id="reward"
-                    type="number"
-                    min={0}
-                    placeholder="1000"
-                    value={reward}
-                    onChange={(e) => setReward(e.target.value)}
-                    required
-                    className={`bg-white/5 border border-white/10 text-white rounded-xl placeholder:text-zinc-500 focus:border-primary/40 focus:ring-1 focus:ring-primary/40 transition-all duration-300 text-sm h-11 ${errors.reward ? 'border-red-500 focus:ring-red-500' : ''}`}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="reward"
+                      type="number"
+                      step="any"
+                      min={0}
+                      max={100}
+                      placeholder="1.25"
+                      value={rewardPercent}
+                      onChange={(e) => setRewardPercent(e.target.value)}
+                      required
+                      className={`pr-8 bg-white/5 border border-white/10 text-white rounded-xl placeholder:text-zinc-500 focus:border-primary/40 focus:ring-1 focus:ring-primary/40 transition-all duration-300 text-sm h-11 ${errors.reward ? 'border-red-500 focus:ring-red-500' : ''}`}
+                    />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-sm pointer-events-none select-none">
+                      %
+                    </span>
+                  </div>
                   {errors.reward && <p className="text-red-400 text-xs">{errors.reward}</p>}
                 </div>
 
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 mb-2 relative">
                     <Label htmlFor="halfLifeSeconds" className="font-mono text-[10.5px] tracking-wider text-muted-foreground uppercase">
-                      Half Life Seconds *
+                      Half Life *
                     </Label>
                     <button
                       type="button"
@@ -908,23 +877,28 @@ export default function CreateOracleIntegrated() {
                       </div>
                     )}
                   </div>
-                  <Input
-                    id="halfLifeSeconds"
-                    type="number"
-                    min={0}
-                    placeholder="3600"
-                    value={halfLifeSeconds}
-                    onChange={(e) => setHalfLifeSeconds(e.target.value)}
-                    required
-                    className={`bg-white/5 border border-white/10 text-white rounded-xl placeholder:text-zinc-500 focus:border-primary/40 focus:ring-1 focus:ring-primary/40 transition-all duration-300 text-sm h-11 ${errors.halfLifeSeconds ? 'border-red-500 focus:ring-red-500' : ''}`}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="halfLifeSeconds"
+                      type="number"
+                      min={0}
+                      placeholder="3600"
+                      value={halfLifeSeconds}
+                      onChange={(e) => setHalfLifeSeconds(e.target.value)}
+                      required
+                      className={`pr-20 bg-white/5 border border-white/10 text-white rounded-xl placeholder:text-zinc-500 focus:border-primary/40 focus:ring-1 focus:ring-primary/40 transition-all duration-300 text-sm h-11 ${errors.halfLifeSeconds ? 'border-red-500 focus:ring-red-500' : ''}`}
+                    />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs pointer-events-none select-none">
+                      seconds
+                    </span>
+                  </div>
                   {errors.halfLifeSeconds && <p className="text-red-400 text-xs">{errors.halfLifeSeconds}</p>}
                 </div>
 
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 mb-2 relative">
                     <Label htmlFor="quorumBps" className="font-mono text-[10.5px] tracking-wider text-muted-foreground uppercase">
-                      Quorum (basis points) *
+                      Quorum Percentage *
                     </Label>
                     <button
                       type="button"
@@ -936,28 +910,34 @@ export default function CreateOracleIntegrated() {
                     </button>
                     {showTooltip === 'quorumBps' && (
                       <div className="absolute bottom-full mb-2 left-0 z-50 bg-zinc-950 border border-white/10 text-white font-mono text-[9.5px] rounded-lg p-2.5 shadow-xl max-w-xs pointer-events-none">
-                        Minimum participation required (0-10000). 20% = 2000 bps
+                        Minimum percentage of staked token participation required for governance actions (e.g., 20% = 2,000 basis points).
                       </div>
                     )}
                   </div>
-                  <Input
-                    id="quorumBps"
-                    type="number"
-                    min={0}
-                    max={10000}
-                    placeholder="2000"
-                    value={quorumBps}
-                    onChange={(e) => setQuorumBps(e.target.value)}
-                    required
-                    className={`bg-white/5 border border-white/10 text-white rounded-xl placeholder:text-zinc-500 focus:border-primary/40 focus:ring-1 focus:ring-primary/40 transition-all duration-300 text-sm h-11 ${errors.quorumBps ? 'border-red-500 focus:ring-red-500' : ''}`}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="quorumBps"
+                      type="number"
+                      step="any"
+                      min={0}
+                      max={100}
+                      placeholder="20"
+                      value={quorumPercent}
+                      onChange={(e) => setQuorumPercent(e.target.value)}
+                      required
+                      className={`pr-8 bg-white/5 border border-white/10 text-white rounded-xl placeholder:text-zinc-500 focus:border-primary/40 focus:ring-1 focus:ring-primary/40 transition-all duration-300 text-sm h-11 ${errors.quorumBps ? 'border-red-500 focus:ring-red-500' : ''}`}
+                    />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-sm pointer-events-none select-none">
+                      %
+                    </span>
+                  </div>
                   {errors.quorumBps && <p className="text-red-400 text-xs">{errors.quorumBps}</p>}
                 </div>
 
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 mb-2 relative">
                     <Label htmlFor="depositLock" className="font-mono text-[10.5px] tracking-wider text-muted-foreground uppercase">
-                      Deposit Lock Period (sec) *
+                      Deposit Lock Period *
                     </Label>
                     <button
                       type="button"
@@ -973,23 +953,28 @@ export default function CreateOracleIntegrated() {
                       </div>
                     )}
                   </div>
-                  <Input
-                    id="depositLock"
-                    type="number"
-                    min={0}
-                    placeholder="3600"
-                    value={depositLock}
-                    onChange={(e) => setDepositLock(e.target.value)}
-                    required
-                    className={`bg-white/5 border border-white/10 text-white rounded-xl placeholder:text-zinc-500 focus:border-primary/40 focus:ring-1 focus:ring-primary/40 transition-all duration-300 text-sm h-11 ${errors.depositLock ? 'border-red-500 focus:ring-red-500' : ''}`}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="depositLock"
+                      type="number"
+                      min={0}
+                      placeholder="3600"
+                      value={depositLock}
+                      onChange={(e) => setDepositLock(e.target.value)}
+                      required
+                      className={`pr-20 bg-white/5 border border-white/10 text-white rounded-xl placeholder:text-zinc-500 focus:border-primary/40 focus:ring-1 focus:ring-primary/40 transition-all duration-300 text-sm h-11 ${errors.depositLock ? 'border-red-500 focus:ring-red-500' : ''}`}
+                    />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs pointer-events-none select-none">
+                      seconds
+                    </span>
+                  </div>
                   {errors.depositLock && <p className="text-red-400 text-xs">{errors.depositLock}</p>}
                 </div>
 
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 mb-2 relative">
                     <Label htmlFor="withdrawLock" className="font-mono text-[10.5px] tracking-wider text-muted-foreground uppercase">
-                      Withdrawal Lock Period (sec) *
+                      Withdrawal Lock Period *
                     </Label>
                     <button
                       type="button"
@@ -1005,16 +990,21 @@ export default function CreateOracleIntegrated() {
                       </div>
                     )}
                   </div>
-                  <Input
-                    id="withdrawLock"
-                    type="number"
-                    min={0}
-                    placeholder="3600"
-                    value={withdrawLock}
-                    onChange={(e) => setWithdrawLock(e.target.value)}
-                    required
-                    className={`bg-white/5 border border-white/10 text-white rounded-xl placeholder:text-zinc-500 focus:border-primary/40 focus:ring-1 focus:ring-primary/40 transition-all duration-300 text-sm h-11 ${errors.withdrawLock ? 'border-red-500 focus:ring-red-500' : ''}`}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="withdrawLock"
+                      type="number"
+                      min={0}
+                      placeholder="3600"
+                      value={withdrawLock}
+                      onChange={(e) => setWithdrawLock(e.target.value)}
+                      required
+                      className={`pr-20 bg-white/5 border border-white/10 text-white rounded-xl placeholder:text-zinc-500 focus:border-primary/40 focus:ring-1 focus:ring-primary/40 transition-all duration-300 text-sm h-11 ${errors.withdrawLock ? 'border-red-500 focus:ring-red-500' : ''}`}
+                    />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-xs pointer-events-none select-none">
+                      seconds
+                    </span>
+                  </div>
                   {errors.withdrawLock && <p className="text-red-400 text-xs">{errors.withdrawLock}</p>}
                 </div>
 
@@ -1033,7 +1023,7 @@ export default function CreateOracleIntegrated() {
                     </button>
                     {showTooltip === 'alpha' && (
                       <div className="absolute bottom-full mb-2 left-0 z-50 bg-zinc-950 border border-white/10 text-white font-mono text-[9.5px] rounded-lg p-2.5 shadow-xl max-w-xs pointer-events-none">
-                        Scalar in reward formula. Keep small unless you understand the economics
+                        The sampling interval in seconds between historical snapshots used to compute min/max Value Ranges. Ensures the lookback window represents a genuine time spread.
                       </div>
                     )}
                   </div>
