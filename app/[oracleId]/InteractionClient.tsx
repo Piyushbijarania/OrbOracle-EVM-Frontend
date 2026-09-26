@@ -104,10 +104,12 @@ export default function OracleInteractionPage() {
   const [isUpdatingVoteWeights, setIsUpdatingVoteWeights] = useState(false)
   const [isReadingValue, setIsReadingValue] = useState(false)
   const [isReadingLatestValue, setIsReadingLatestValue] = useState(false)
+  const [isReadingInterval, setIsReadingInterval] = useState(false)
 
   // Real-time oracle data
   const [latestValue, setLatestValue] = useState<string>("—")
   const [aggregatedValue, setAggregatedValue] = useState<string>("—")
+  const [intervalValue, setIntervalValue] = useState<string>("—")
   const [lastUpdated, setLastUpdated] = useState<string>("Loading...")
   const [userDepositedTokens, setUserDepositedTokens] = useState<string>("0")
   const [userTokenBalance, setUserTokenBalance] = useState<string>("0")
@@ -550,17 +552,25 @@ export default function OracleInteractionPage() {
     if (tokenAllowanceData !== undefined) {
       setTokenAllowance(formatTokenAmount(tokenAllowanceData as bigint, 4))
     }
-    if (lastUpdatedData) {
+    if (lastUpdatedData !== undefined) {
       const timestamp = Number(lastUpdatedData as bigint)
-      const now = Math.floor(Date.now() / 1000)
-      const diff = now - timestamp
-      if (diff < 60) {
-        setLastUpdated(`${diff}s ago`)
-      } else if (diff < 3600) {
-        setLastUpdated(`${Math.floor(diff / 60)}m ago`)
+      if (timestamp === 0) {
+        setLastUpdated("Never")
       } else {
-        setLastUpdated(`${Math.floor(diff / 3600)}h ago`)
+        const now = Math.floor(Date.now() / 1000)
+        const diff = Math.max(0, now - timestamp)
+        if (diff < 60) {
+          setLastUpdated(`${diff}s ago`)
+        } else if (diff < 3600) {
+          setLastUpdated(`${Math.floor(diff / 60)}m ago`)
+        } else if (diff < 86400) {
+          setLastUpdated(`${Math.floor(diff / 3600)}h ago`)
+        } else {
+          setLastUpdated(`${Math.floor(diff / 86400)}d ago`)
+        }
       }
+    } else if (oracle?.isComposed) {
+      setLastUpdated("Live Calculated")
     }
 
     // Update oracle configuration values
@@ -1074,7 +1084,6 @@ export default function OracleInteractionPage() {
       const formatted = formatPriceFromWei(result)
 
       setAggregatedValue(formatted)
-      setLastUpdated("Just now")
 
       toast({
         title: "Aggregated Value",
@@ -1109,7 +1118,6 @@ export default function OracleInteractionPage() {
       const formatted = formatPriceFromWei(result)
 
       setLatestValue(formatted)
-      setLastUpdated("Just now")
 
       toast({
         title: "Latest Submission",
@@ -1133,6 +1141,49 @@ export default function OracleInteractionPage() {
       })
     } finally {
       setIsReadingLatestValue(false)
+    }
+  }
+
+  const handleReadInterval = async () => {
+    try {
+      setIsReadingInterval(true)
+
+      if (!oracleAddress || !publicClient) {
+        throw new Error("Oracle client not ready")
+      }
+
+      const result = (await publicClient.readContract({
+        address: oracleAddress,
+        abi: OracleAbi,
+        functionName: "readValueInterval",
+        args: [],
+      })) as [bigint, bigint]
+
+      const minFormatted = formatPriceFromWei(result[0])
+      const maxFormatted = formatPriceFromWei(result[1])
+
+      setIntervalValue(`${minFormatted} – ${maxFormatted}`)
+
+      toast({
+        title: "Lookback Interval (Min / Max)",
+        description: `Min: ${minFormatted} | Max: ${maxFormatted}`,
+      })
+    } catch (err: unknown) {
+      console.error('Error reading interval:', err)
+      const description =
+        err instanceof BaseError
+          ? err.shortMessage
+          : err instanceof Error
+            ? err.message
+            : "Failed to read interval bounds. Ensure the oracle has historical observations."
+
+      toast({
+        title: "Interval Read Failed",
+        description,
+        variant: "destructive",
+      })
+    } finally {
+      setIsReadingInterval(false)
     }
   }
 
@@ -1181,16 +1232,6 @@ export default function OracleInteractionPage() {
         {/* Radar lines */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:4rem_4rem]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_800px_at_100%_200px,#8b5cf60c,transparent)]" />
-        
-        {/* Floating monospaced radar grids */}
-        <div className="absolute top-[20%] left-[10%] text-[8px] font-mono text-zinc-700 select-none hidden md:block">
-          LATENCY: 12ms // STABILITY: 99.98% <br />
-          LOC: [47.6062, -122.3321]
-        </div>
-        <div className="absolute bottom-[20%] right-[10%] text-[8px] font-mono text-zinc-700 select-none hidden md:block">
-          SECTOR_X: ORB_CON_5 <br />
-          SYS_VAL: ACTIVE_STATUS
-        </div>
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 pt-28 pb-20 relative z-10">
@@ -1232,10 +1273,10 @@ export default function OracleInteractionPage() {
 
           {/* Addresses */}
           <div className="grid gap-4 md:grid-cols-2 pt-2">
-            <div className={`bg-white/5 border border-white/10 rounded-2xl p-4 text-left backdrop-blur-md ${oracle.isComposed ? 'md:col-span-2' : ''}`}>
-              <div className="text-[9px] font-mono uppercase tracking-wider text-zinc-500 mb-1.5">Oracle Contract Address</div>
+            <div className={`bg-zinc-950/70 border border-white/10 rounded-3xl p-5 text-left backdrop-blur-md shadow-xl ${oracle.isComposed ? 'md:col-span-2' : ''}`}>
+              <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 mb-2">Oracle Contract Address</div>
               <div className="flex items-center justify-between gap-3">
-                <code className="flex-1 text-xs bg-black/40 border border-white/5 px-3 py-2 rounded-lg text-primary font-mono break-all">
+                <code className="flex-1 text-xs sm:text-sm bg-black/40 border border-white/5 px-3.5 py-2.5 rounded-xl text-primary font-mono break-all font-medium">
                   {oracle.address}
                 </code>
                 <button
@@ -1243,22 +1284,22 @@ export default function OracleInteractionPage() {
                     navigator.clipboard.writeText(oracle.address);
                     toast({ description: "Address copied to clipboard" });
                   }}
-                  className="text-zinc-400 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-lg border border-white/10"
+                  className="text-zinc-400 hover:text-white transition-colors p-2.5 hover:bg-white/5 rounded-xl border border-white/10 shrink-0"
                   title="Copy address"
                 >
-                  <Copy className="h-3.5 w-3.5" />
+                  <Copy className="h-4 w-4" />
                 </button>
               </div>
             </div>
 
             {!oracle.isComposed && (
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-left backdrop-blur-md">
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="text-[9px] font-mono uppercase tracking-wider text-zinc-500">Staking Weight Token</div>
-                  <span className="text-[10px] font-mono font-bold text-primary">{weightTokenSymbol}</span>
+              <div className="bg-zinc-950/70 border border-white/10 rounded-3xl p-5 text-left backdrop-blur-md shadow-xl">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">Staking Weight Token</div>
+                  <span className="text-xs font-mono font-semibold text-primary">{weightTokenSymbol}</span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
-                  <code className="flex-1 text-xs bg-black/40 border border-white/5 px-3 py-2 rounded-lg text-primary font-mono break-all">
+                  <code className="flex-1 text-xs sm:text-sm bg-black/40 border border-white/5 px-3.5 py-2.5 rounded-xl text-primary font-mono break-all font-medium">
                     {weightTokenAddressString}
                   </code>
                   <button
@@ -1269,10 +1310,10 @@ export default function OracleInteractionPage() {
                       }
                     }}
                     disabled={!canCopyWeightTokenAddress}
-                    className="text-zinc-400 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-lg border border-white/10 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="text-zinc-400 hover:text-white transition-colors p-2.5 hover:bg-white/5 rounded-xl border border-white/10 disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                     title="Copy token address"
                   >
-                    <Copy className="h-3.5 w-3.5" />
+                    <Copy className="h-4 w-4" />
                   </button>
                 </div>
               </div>
@@ -1284,15 +1325,13 @@ export default function OracleInteractionPage() {
         <div className="max-w-7xl mx-auto space-y-8">
           
           {/* Price Chart Section */}
-          <div className="bg-white/5 border border-white/10 rounded-[2rem] p-1.5 backdrop-blur-[2px] shadow-xl transition-all duration-500 hover:border-primary/20">
-            <div className="bg-zinc-950/40 rounded-[calc(2rem-0.5rem)] p-6 border border-white/5 space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-white/5">
-                <TrendingUp className="h-4 w-4 text-primary" />
-                <h3 className="font-mono text-xs uppercase tracking-wider text-white">Price Chart & Analytics</h3>
-              </div>
-              <div className="pt-2">
-                <PriceChart data={priceHistoryPoints} loading={isFetchingPriceHistory || isReadingValue || isReadingLatestValue} />
-              </div>
+          <div className="bg-zinc-950/70 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl transition-all duration-300 hover:border-white/20 space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+              <TrendingUp className="h-4 w-4 text-primary" />
+              <h3 className="font-mono text-xs uppercase tracking-wider text-white">Price Chart & Analytics</h3>
+            </div>
+            <div className="pt-2">
+              <PriceChart data={priceHistoryPoints} loading={isFetchingPriceHistory || isReadingValue || isReadingLatestValue} />
             </div>
           </div>
 
@@ -1301,144 +1340,150 @@ export default function OracleInteractionPage() {
             
             {/* Left Module: Feed submission / Formula */}
             {oracle?.isComposed ? (
-              <div className="bg-white/5 border border-white/10 rounded-[2rem] p-1.5 backdrop-blur-[2px] shadow-xl transition-all duration-500 hover:border-primary/20">
-                <div className="bg-zinc-950/40 rounded-[calc(2rem-0.5rem)] p-6 border border-white/5 flex flex-col justify-between h-full space-y-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 pb-2 border-b border-white/5">
-                      <Settings className="h-4 w-4 text-primary" />
-                      <h3 className="font-mono text-xs uppercase tracking-wider text-white">Composition Formula</h3>
+              <div className="bg-zinc-950/70 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl transition-all duration-300 hover:border-white/20 flex flex-col justify-between h-full space-y-6">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                    <Settings className="h-4 w-4 text-primary" />
+                    <h3 className="font-mono text-xs uppercase tracking-wider text-white">Composition Formula</h3>
+                  </div>
+                  <p className="text-xs text-zinc-400 pt-1 leading-relaxed">
+                    This derivative price index is computed mathematically on-chain from two separate feeds.
+                  </p>
+                </div>
+
+                <div className="space-y-4 py-2">
+                  <div className="flex flex-col gap-2 p-4 bg-black/40 border border-white/5 rounded-2xl">
+                    <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Formula Definition</div>
+                    <div className="text-base sm:text-lg font-light text-white flex items-center gap-2">
+                      <Link
+                        href={`/o?chainId=${chainId}&oracle=${oracle.feedA}`}
+                        className="text-primary hover:underline font-mono font-medium"
+                      >
+                        {oracle.name?.split(' ')[0] || (oracle.feedA ? `${oracle.feedA.slice(0, 6)}...${oracle.feedA.slice(-4)}` : "")}
+                      </Link>
+                      <span className="font-bold text-primary font-mono text-lg">{oracle.operation === 0 ? "×" : "/"}</span>
+                      <Link
+                        href={`/o?chainId=${chainId}&oracle=${oracle.feedB}`}
+                        className="text-primary hover:underline font-mono font-medium"
+                      >
+                        {oracle.name?.split(' ')[2] || (oracle.feedB ? `${oracle.feedB.slice(0, 6)}...${oracle.feedB.slice(-4)}` : "")}
+                      </Link>
+                      {oracle.invertResult && (
+                        <span className="text-[10px] font-mono bg-primary/10 text-primary px-2.5 py-0.5 rounded-full border border-primary/20 ml-2 uppercase tracking-wider">
+                          Inverted
+                        </span>
+                      )}
                     </div>
-                    <p className="text-xs text-zinc-400 pt-1 leading-relaxed">
-                      This derivative price index is computed mathematically on-chain from two separate feeds.
-                    </p>
                   </div>
 
-                  <div className="space-y-4 py-2">
-                    <div className="flex flex-col gap-1.5 p-3.5 bg-black/40 border border-white/5 rounded-xl">
-                      <div className="text-[8px] font-mono text-zinc-500 uppercase tracking-widest">Formula Definition</div>
-                      <div className="text-base font-light text-white flex items-center gap-2">
-                        <Link
-                          href={`/o?chainId=${chainId}&oracle=${oracle.feedA}`}
-                          className="text-primary hover:underline font-mono"
-                        >
-                          {oracle.name?.split(' ')[0] || (oracle.feedA ? `${oracle.feedA.slice(0, 6)}...${oracle.feedA.slice(-4)}` : "")}
-                        </Link>
-                        <span className="font-bold text-primary font-mono">{oracle.operation === 0 ? "×" : "/"}</span>
-                        <Link
-                          href={`/o?chainId=${chainId}&oracle=${oracle.feedB}`}
-                          className="text-primary hover:underline font-mono"
-                        >
-                          {oracle.name?.split(' ')[2] || (oracle.feedB ? `${oracle.feedB.slice(0, 6)}...${oracle.feedB.slice(-4)}` : "")}
-                        </Link>
-                        {oracle.invertResult && (
-                          <span className="text-[9px] font-mono bg-primary/10 text-primary px-2 py-0.5 rounded border border-primary/20 ml-2 uppercase tracking-wider">
-                            Inverted
-                          </span>
-                        )}
-                      </div>
+                  <div className="grid grid-cols-2 gap-4 text-xs">
+                    <div className="p-3.5 bg-black/30 border border-white/5 rounded-2xl">
+                      <span className="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Index Deployer</span>
+                      <span className="font-mono text-xs text-white block truncate" title={oracle.creator}>
+                        {oracle.creator ? `${oracle.creator.slice(0, 6)}...${oracle.creator.slice(-4)}` : "—"}
+                      </span>
                     </div>
-
-                    <div className="grid grid-cols-2 gap-4 text-xs">
-                      <div className="p-3 bg-black/30 border border-white/5 rounded-xl">
-                        <span className="text-[8px] font-mono text-zinc-500 uppercase block mb-1">Index Deployer</span>
-                        <span className="font-mono text-xs text-white block truncate" title={oracle.creator}>
-                          {oracle.creator ? `${oracle.creator.slice(0, 6)}...${oracle.creator.slice(-4)}` : "—"}
-                        </span>
-                      </div>
-                      <div className="p-3 bg-black/30 border border-white/5 rounded-xl">
-                        <span className="text-[8px] font-mono text-zinc-500 uppercase block mb-1">Lookback Points</span>
-                        <span className="font-mono text-xs text-white block">
-                          {oracle.defaultSampleSize ? oracle.defaultSampleSize.toString() : "100"}
-                        </span>
-                      </div>
+                    <div className="p-3.5 bg-black/30 border border-white/5 rounded-2xl">
+                      <span className="text-[10px] font-mono text-zinc-500 uppercase block mb-1">Lookback Points</span>
+                      <span className="font-mono text-sm text-white font-medium block">
+                        {oracle.defaultSampleSize ? oracle.defaultSampleSize.toString() : "100"}
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="bg-white/5 border border-white/10 rounded-[2rem] p-1.5 backdrop-blur-[2px] shadow-xl transition-all duration-500 hover:border-primary/20">
-                <div className="bg-zinc-950/40 rounded-[calc(2rem-0.5rem)] p-6 border border-white/5 flex flex-col justify-between h-full space-y-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 pb-2 border-b border-white/5">
-                      <Send className="h-4 w-4 text-primary" />
-                      <h3 className="font-mono text-xs uppercase tracking-wider text-white">Submit Price Value</h3>
-                    </div>
-                    <p className="text-xs text-zinc-400 pt-1 leading-relaxed">
-                      Publish a new price update. Submitting updates requires a deposited staking balance.
-                    </p>
+              <div className="bg-zinc-950/70 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl transition-all duration-300 hover:border-white/20 flex flex-col justify-between h-full space-y-6">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                    <Send className="h-4 w-4 text-primary" />
+                    <h3 className="font-mono text-xs uppercase tracking-wider text-white">Submit Price Value</h3>
                   </div>
+                  <p className="text-xs text-zinc-400 pt-1 leading-relaxed">
+                    Publish a new price update. Submitting updates requires a deposited staking balance.
+                  </p>
+                </div>
 
-                  <div className="space-y-3 pt-2">
-                    <div>
-                      <label htmlFor="submitValue" className="text-[9px] font-mono uppercase tracking-wider text-zinc-500 block mb-1.5">Price Value</label>
-                      <input
-                        id="submitValue"
-                        type="number"
-                        placeholder="Enter value (e.g. 2500.50)"
-                        value={submitValue}
-                        onChange={(e) => setSubmitValue(e.target.value)}
-                        className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm placeholder:text-zinc-500 text-white focus:border-primary/45 focus:ring-1 focus:ring-primary/20 transition-all outline-none"
-                      />
-                    </div>
-                    <button 
-                      onClick={handleSubmitValue} 
-                      disabled={isSubmitting || isPending || isConfirming || !submitValue || !isConnected}
-                      className="w-full h-11 rounded-xl bg-white text-black hover:bg-zinc-200 font-mono text-[10px] font-bold tracking-wider active:scale-[0.98] transition-all flex items-center justify-center space-x-2 disabled:opacity-40"
-                    >
-                      {(isSubmitting || isPending || isConfirming) ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
-                      <span>{isSubmitting || isPending ? "Submitting..." : isConfirming ? "Confirming..." : "Submit Price"}</span>
-                    </button>
+                <div className="space-y-4 pt-2">
+                  <div>
+                    <label htmlFor="submitValue" className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 block mb-2">Price Value</label>
+                    <input
+                      id="submitValue"
+                      type="number"
+                      placeholder="Enter value (e.g. 2500.50)"
+                      value={submitValue}
+                      onChange={(e) => setSubmitValue(e.target.value)}
+                      className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 text-sm placeholder:text-zinc-500 text-white focus:border-primary/45 focus:ring-1 focus:ring-primary/20 transition-all outline-none font-mono"
+                    />
                   </div>
+                  <button 
+                    onClick={handleSubmitValue} 
+                    disabled={isSubmitting || isPending || isConfirming || !submitValue || !isConnected}
+                    className="w-full h-12 rounded-xl bg-white text-black hover:bg-zinc-200 font-mono text-xs font-semibold tracking-wider active:scale-[0.98] transition-all flex items-center justify-center space-x-2 disabled:opacity-40"
+                  >
+                    {(isSubmitting || isPending || isConfirming) ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                    <span>{isSubmitting || isPending ? "Submitting..." : isConfirming ? "Confirming..." : "Submit Price"}</span>
+                  </button>
                 </div>
               </div>
             )}
 
             {/* Right Module: Current Feed metrics */}
-            <div className="bg-white/5 border border-white/10 rounded-[2rem] p-1.5 backdrop-blur-[2px] shadow-xl transition-all duration-500 hover:border-primary/20">
-              <div className="bg-zinc-950/40 rounded-[calc(2rem-0.5rem)] p-6 border border-white/5 flex flex-col justify-between h-full space-y-4">
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between pb-2 border-b border-white/5">
-                    <div className="flex items-center gap-2">
-                      <Database className="h-4 w-4 text-primary" />
-                      <h3 className="font-mono text-xs uppercase tracking-wider text-white">Aggregated Metrics</h3>
-                    </div>
-                    <span className="text-[8px] font-mono text-zinc-500 uppercase tracking-wider">{lastUpdated}</span>
+            <div className="bg-zinc-950/70 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl transition-all duration-300 hover:border-white/20 flex flex-col justify-between h-full space-y-6">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                  <Database className="h-4 w-4 text-primary" />
+                  <h3 className="font-mono text-xs uppercase tracking-wider text-white">Aggregated Metrics</h3>
+                </div>
+                <p className="text-xs text-zinc-400 pt-1 leading-relaxed">
+                  Query the on-chain registry state for latest node reports and global updates.
+                </p>
+              </div>
+
+              <div className="space-y-3.5 pt-2">
+                <div className="flex items-center justify-between p-3.5 bg-black/40 border border-white/5 rounded-2xl">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-2 h-2 rounded-full bg-primary" />
+                    <span className="text-zinc-400 font-mono text-[10px] uppercase tracking-wider">Latest Value</span>
+                    <span className="text-white font-mono text-sm font-medium ml-2">{latestValue || "—"}</span>
                   </div>
-                  <p className="text-xs text-zinc-400 pt-1 leading-relaxed">
-                    Query the on-chain registry state for latest node reports and global updates.
-                  </p>
+                  <button 
+                    className="h-8 px-3.5 text-[10px] font-mono border border-white/10 text-white rounded-lg hover:bg-white/5 active:scale-95 transition-all font-semibold"
+                    onClick={handleReadLatestValue}
+                    disabled={isReadingLatestValue || isPending || isConfirming || !isConnected}
+                  >
+                    {isReadingLatestValue ? <Loader2 className="h-3 w-3 animate-spin" /> : "QUERY"}
+                  </button>
+                </div>
+                
+                <div className="flex items-center justify-between p-3.5 bg-black/40 border border-white/5 rounded-2xl">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-2 h-2 rounded-full bg-primary" />
+                    <span className="text-zinc-400 font-mono text-[10px] uppercase tracking-wider">Aggregated Value</span>
+                    <span className="text-white font-mono text-sm font-medium ml-2">{aggregatedValue || "—"}</span>
+                  </div>
+                  <button 
+                    className="h-8 px-3.5 text-[10px] font-mono border border-white/10 text-white rounded-lg hover:bg-white/5 active:scale-95 transition-all font-semibold"
+                    onClick={handleReadValue}
+                    disabled={isReadingValue || isPending || isConfirming || !isConnected}
+                  >
+                    {isReadingValue ? <Loader2 className="h-3 w-3 animate-spin" /> : "QUERY"}
+                  </button>
                 </div>
 
-                <div className="space-y-3 pt-2">
-                  <div className="flex items-center justify-between p-3 bg-black/40 border border-white/5 rounded-xl">
-                    <div className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      <span className="text-zinc-400 font-mono text-[9px] uppercase tracking-wider">Latest Value</span>
-                      <span className="text-white font-mono text-xs font-semibold ml-1">{latestValue || "—"}</span>
-                    </div>
-                    <button 
-                      className="h-7 px-3 text-[9px] font-mono border border-white/10 text-white rounded-lg hover:bg-white/5 active:scale-95 transition-all"
-                      onClick={handleReadLatestValue}
-                      disabled={isReadingLatestValue || isPending || isConfirming || !isConnected}
-                    >
-                      {isReadingLatestValue ? <Loader2 className="h-3 w-3 animate-spin" /> : "QUERY"}
-                    </button>
+                <div className="flex items-center justify-between p-3.5 bg-black/40 border border-white/5 rounded-2xl">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-2 h-2 rounded-full bg-primary" />
+                    <span className="text-zinc-400 font-mono text-[10px] uppercase tracking-wider">Min / Max Interval</span>
+                    <span className="text-white font-mono text-sm font-medium ml-2">{intervalValue || "—"}</span>
                   </div>
-                  
-                  <div className="flex items-center justify-between p-3 bg-black/40 border border-white/5 rounded-xl">
-                    <div className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
-                      <span className="text-zinc-400 font-mono text-[9px] uppercase tracking-wider">Consensus Avg</span>
-                      <span className="text-white font-mono text-xs font-semibold ml-1">{aggregatedValue || "—"}</span>
-                    </div>
-                    <button 
-                      className="h-7 px-3 text-[9px] font-mono border border-white/10 text-white rounded-lg hover:bg-white/5 active:scale-95 transition-all"
-                      onClick={handleReadValue}
-                      disabled={isReadingValue || isPending || isConfirming || !isConnected}
-                    >
-                      {isReadingValue ? <Loader2 className="h-3 w-3 animate-spin" /> : "QUERY"}
-                    </button>
-                  </div>
+                  <button 
+                    className="h-8 px-3.5 text-[10px] font-mono border border-white/10 text-white rounded-lg hover:bg-white/5 active:scale-95 transition-all font-semibold"
+                    onClick={handleReadInterval}
+                    disabled={isReadingInterval || isPending || isConfirming || !isConnected}
+                  >
+                    {isReadingInterval ? <Loader2 className="h-3 w-3 animate-spin" /> : "QUERY"}
+                  </button>
                 </div>
               </div>
             </div>
@@ -1449,201 +1494,193 @@ export default function OracleInteractionPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               
               {/* Deposit Weight Staking */}
-              <div className="bg-white/5 border border-white/10 rounded-[2rem] p-1.5 backdrop-blur-[2px] shadow-xl transition-all duration-500 hover:border-primary/20">
-                <div className="bg-zinc-950/40 rounded-[calc(2rem-0.5rem)] p-6 border border-white/5 space-y-4">
-                  <div className="flex items-center gap-2 pb-2 border-b border-white/5">
-                    <Wallet className="h-4 w-4 text-primary" />
-                    <h3 className="font-mono text-xs uppercase tracking-wider text-white">Staking Deposit</h3>
-                  </div>
+              <div className="bg-zinc-950/70 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl transition-all duration-300 hover:border-white/20 space-y-5">
+                <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                  <Wallet className="h-4 w-4 text-primary" />
+                  <h3 className="font-mono text-xs uppercase tracking-wider text-white">Staking Deposit</h3>
+                </div>
 
-                  {isConnected && (
-                    <div className="grid grid-cols-3 gap-2 p-2.5 bg-black/40 border border-white/5 rounded-xl text-center">
-                      <div>
-                        <div className="text-[7.5px] font-mono text-zinc-500 uppercase mb-0.5">🔒 Staked</div>
-                        <div className="text-white font-mono text-[10px] font-bold truncate">
-                          {formatTokenAmount(lockedTokensData ? (lockedTokensData as bigint) : undefined)}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-[7.5px] font-mono text-zinc-500 uppercase mb-0.5">📅 Locked Since</div>
-                        <div className="text-zinc-300 font-mono text-[8.5px] truncate">{depositTimestamp}</div>
-                      </div>
-                      <div>
-                        <div className="text-[7.5px] font-mono text-zinc-500 uppercase mb-0.5">💼 Wallet</div>
-                        <div className="text-white font-mono text-[10px] font-bold truncate">
-                          {walletTokenBalanceDisplay}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-3">
+                {isConnected && (
+                  <div className="grid grid-cols-3 gap-2.5 p-3.5 bg-black/40 border border-white/5 rounded-2xl text-center">
                     <div>
-                      <label htmlFor="depositAmount" className="text-[9px] font-mono uppercase tracking-wider text-zinc-500 block mb-1.5">Amount to Stake</label>
-                      <input
-                        id="depositAmount"
-                        type="number"
-                        placeholder="0.0"
-                        value={depositAmount}
-                        onChange={(e) => setDepositAmount(e.target.value)}
-                        className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm placeholder:text-zinc-500 text-white focus:border-primary/45 focus:ring-1 focus:ring-primary/20 transition-all outline-none"
-                      />
+                      <div className="text-[9.5px] font-mono text-zinc-400 uppercase mb-1">Staked</div>
+                      <div className="text-white font-mono text-xs sm:text-sm font-medium truncate">
+                        {formatTokenAmount(lockedTokensData ? (lockedTokensData as bigint) : undefined)}
+                      </div>
                     </div>
-
-                    {(() => {
-                      const amount = depositAmount ? parseUnits(depositAmount, weightTokenDecimals) : BigInt(0)
-                      const allowance = tokenAllowanceData ? BigInt(tokenAllowanceData as bigint) : BigInt(0)
-                      const needsApproval = amount > allowance
-
-                      if (needsApproval) {
-                        return (
-                          <button 
-                            onClick={handleApproveTokens} 
-                            disabled={isApproving || isPending || isConfirming || !depositAmount || !isConnected}
-                            className="w-full h-11 rounded-xl bg-white text-black hover:bg-zinc-200 font-mono text-[10px] font-bold tracking-wider active:scale-[0.98] transition-all flex items-center justify-center space-x-2 disabled:opacity-40"
-                          >
-                            {(isApproving || isPending || isConfirming) ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle className="h-3.5 w-3.5" />}
-                            <span>{isApproving || isPending ? "Approving..." : isConfirming ? "Confirming..." : "Approve Staking"}</span>
-                          </button>
-                        )
-                      } else {
-                        return (
-                          <button 
-                            onClick={handleDepositTokens} 
-                            disabled={isDepositing || isPending || isConfirming || !depositAmount || !isConnected}
-                            className="w-full h-11 rounded-xl bg-white text-black hover:bg-zinc-200 font-mono text-[10px] font-bold tracking-wider active:scale-[0.98] transition-all flex items-center justify-center space-x-2 disabled:opacity-40"
-                          >
-                            {(isDepositing || isPending || isConfirming) ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wallet className="h-3.5 w-3.5" />}
-                            <span>{isDepositing || isPending ? "Depositing..." : isConfirming ? "Confirming..." : "Stake Tokens"}</span>
-                          </button>
-                        )
-                      }
-                    })()}
+                    <div>
+                      <div className="text-[9.5px] font-mono text-zinc-400 uppercase mb-1">Locked Since</div>
+                      <div className="text-zinc-300 font-mono text-[10px] truncate">{depositTimestamp}</div>
+                    </div>
+                    <div>
+                      <div className="text-[9.5px] font-mono text-zinc-400 uppercase mb-1">Wallet</div>
+                      <div className="text-white font-mono text-xs sm:text-sm font-medium truncate">
+                        {walletTokenBalanceDisplay}
+                      </div>
+                    </div>
                   </div>
+                )}
+
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="depositAmount" className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 block mb-2">Amount to Stake</label>
+                    <input
+                      id="depositAmount"
+                      type="number"
+                      placeholder="0.0"
+                      value={depositAmount}
+                      onChange={(e) => setDepositAmount(e.target.value)}
+                      className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 text-sm placeholder:text-zinc-500 text-white focus:border-primary/45 focus:ring-1 focus:ring-primary/20 transition-all outline-none font-mono"
+                    />
+                  </div>
+
+                  {(() => {
+                    const amount = depositAmount ? parseUnits(depositAmount, weightTokenDecimals) : BigInt(0)
+                    const allowance = tokenAllowanceData ? BigInt(tokenAllowanceData as bigint) : BigInt(0)
+                    const needsApproval = amount > allowance
+
+                    if (needsApproval) {
+                      return (
+                        <button 
+                          onClick={handleApproveTokens} 
+                          disabled={isApproving || isPending || isConfirming || !depositAmount || !isConnected}
+                          className="w-full h-12 rounded-xl bg-white text-black hover:bg-zinc-200 font-mono text-xs font-semibold tracking-wider active:scale-[0.98] transition-all flex items-center justify-center space-x-2 disabled:opacity-40"
+                        >
+                          {(isApproving || isPending || isConfirming) ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle className="h-3.5 w-3.5" />}
+                          <span>{isApproving || isPending ? "Approving..." : isConfirming ? "Confirming..." : "Approve Staking"}</span>
+                        </button>
+                      )
+                    } else {
+                      return (
+                        <button 
+                          onClick={handleDepositTokens} 
+                          disabled={isDepositing || isPending || isConfirming || !depositAmount || !isConnected}
+                          className="w-full h-12 rounded-xl bg-white text-black hover:bg-zinc-200 font-mono text-xs font-semibold tracking-wider active:scale-[0.98] transition-all flex items-center justify-center space-x-2 disabled:opacity-40"
+                        >
+                          {(isDepositing || isPending || isConfirming) ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wallet className="h-3.5 w-3.5" />}
+                          <span>{isDepositing || isPending ? "Depositing..." : isConfirming ? "Confirming..." : "Stake Tokens"}</span>
+                        </button>
+                      )
+                    }
+                  })()}
                 </div>
               </div>
 
               {/* Withdraw Weight Staking */}
-              <div className="bg-white/5 border border-white/10 rounded-[2rem] p-1.5 backdrop-blur-[2px] shadow-xl transition-all duration-500 hover:border-primary/20">
-                <div className="bg-zinc-950/40 rounded-[calc(2rem-0.5rem)] p-6 border border-white/5 space-y-4">
-                  <div className="flex items-center gap-2 pb-2 border-b border-white/5">
-                    <Wallet className="h-4 w-4 text-red-400" />
-                    <h3 className="font-mono text-xs uppercase tracking-wider text-white">Staking Withdrawal</h3>
-                  </div>
+              <div className="bg-zinc-950/70 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl transition-all duration-300 hover:border-white/20 space-y-5">
+                <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                  <Wallet className="h-4 w-4 text-red-400" />
+                  <h3 className="font-mono text-xs uppercase tracking-wider text-white">Staking Withdrawal</h3>
+                </div>
 
-                  {isConnected && (
-                    <div className="grid grid-cols-2 gap-2 p-2.5 bg-black/40 border border-white/5 rounded-xl text-center">
-                      <div>
-                        <div className="text-[7.5px] font-mono text-zinc-500 uppercase mb-0.5">⏰ Lock Release</div>
-                        <div className="text-zinc-300 font-mono text-[8.5px] truncate">{lastOperationTimestamp}</div>
-                      </div>
-                      <div>
-                        <div className="text-[7.5px] font-mono text-zinc-500 uppercase mb-0.5">✓ Unlocked</div>
-                        <div className="text-white font-mono text-[10px] font-bold truncate">
-                          {formatTokenAmount(unlockedTokensData ? (unlockedTokensData as bigint) : undefined)}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-3">
+                {isConnected && (
+                  <div className="grid grid-cols-2 gap-3 p-3.5 bg-black/40 border border-white/5 rounded-2xl text-center">
                     <div>
-                      <label htmlFor="withdrawAmount" className="text-[9px] font-mono uppercase tracking-wider text-zinc-500 block mb-1.5">Amount to Withdraw</label>
-                      <input
-                        id="withdrawAmount"
-                        type="number"
-                        placeholder="0.0"
-                        value={withdrawAmount}
-                        onChange={(e) => setWithdrawAmount(e.target.value)}
-                        className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm placeholder:text-zinc-500 text-white focus:border-primary/45 focus:ring-1 focus:ring-primary/20 transition-all outline-none"
-                      />
+                      <div className="text-[9.5px] font-mono text-zinc-400 uppercase mb-1">Lock Release</div>
+                      <div className="text-zinc-300 font-mono text-[10px] truncate">{lastOperationTimestamp}</div>
                     </div>
-                    <button 
-                      onClick={handleWithdrawTokens} 
-                      disabled={isWithdrawing || isPending || isConfirming || !withdrawAmount || !isConnected}
-                      className="w-full h-11 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 font-mono text-[10px] font-bold tracking-wider active:scale-[0.98] transition-all flex items-center justify-center space-x-2 disabled:opacity-40"
-                    >
-                      {(isWithdrawing || isPending || isConfirming) ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wallet className="h-3.5 w-3.5" />}
-                      <span>{isWithdrawing || isPending ? "Withdrawing..." : isConfirming ? "Confirming..." : "Withdraw Staked"}</span>
-                    </button>
+                    <div>
+                      <div className="text-[9.5px] font-mono text-zinc-400 uppercase mb-1">Unlocked</div>
+                      <div className="text-white font-mono text-xs sm:text-sm font-medium truncate">
+                        {formatTokenAmount(unlockedTokensData ? (unlockedTokensData as bigint) : undefined)}
+                      </div>
+                    </div>
                   </div>
+                )}
+
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="withdrawAmount" className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 block mb-2">Amount to Withdraw</label>
+                    <input
+                      id="withdrawAmount"
+                      type="number"
+                      placeholder="0.0"
+                      value={withdrawAmount}
+                      onChange={(e) => setWithdrawAmount(e.target.value)}
+                      className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 text-sm placeholder:text-zinc-500 text-white focus:border-primary/45 focus:ring-1 focus:ring-primary/20 transition-all outline-none font-mono"
+                    />
+                  </div>
+                  <button 
+                    onClick={handleWithdrawTokens} 
+                    disabled={isWithdrawing || isPending || isConfirming || !withdrawAmount || !isConnected}
+                    className="w-full h-12 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 font-mono text-xs font-semibold tracking-wider active:scale-[0.98] transition-all flex items-center justify-center space-x-2 disabled:opacity-40"
+                  >
+                    {(isWithdrawing || isPending || isConfirming) ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wallet className="h-3.5 w-3.5" />}
+                    <span>{isWithdrawing || isPending ? "Withdrawing..." : isConfirming ? "Confirming..." : "Withdraw Staked"}</span>
+                  </button>
                 </div>
               </div>
 
               {/* Staking Governance module */}
-              <div className="bg-white/5 border border-white/10 rounded-[2rem] p-1.5 backdrop-blur-[2px] shadow-xl transition-all duration-500 hover:border-primary/20">
-                <div className="bg-zinc-950/40 rounded-[calc(2rem-0.5rem)] p-6 border border-white/5 space-y-4">
-                  <div className="flex items-center gap-2 pb-2 border-b border-white/5">
-                    <Vote className="h-4 w-4 text-primary" />
-                    <h3 className="font-mono text-xs uppercase tracking-wider text-white">Staking Governance</h3>
-                  </div>
-                  <p className="text-xs text-zinc-400 leading-relaxed">
-                    Vote to blacklist or whitelist consumers. Staked weight token holders vote to prevent free-riding protocols from reading oracle values without fulfilling usage terms.
-                  </p>
+              <div className="bg-zinc-950/70 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl transition-all duration-300 hover:border-white/20 space-y-5">
+                <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                  <Vote className="h-4 w-4 text-primary" />
+                  <h3 className="font-mono text-xs uppercase tracking-wider text-white">Staking Governance</h3>
+                </div>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Vote to blacklist or whitelist consumers. Staked weight token holders vote to prevent free-riding protocols from reading oracle values without fulfilling usage terms.
+                </p>
 
-                  <div className="space-y-3 pt-2">
-                    <div>
-                      <label htmlFor="voteTarget" className="text-[9px] font-mono uppercase tracking-wider text-zinc-500 block mb-1.5">Target Address</label>
-                      <input
-                        id="voteTarget"
-                        placeholder="0x..."
-                        value={voteTarget}
-                        onChange={(e) => setVoteTarget(e.target.value)}
-                        className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-xs font-mono placeholder:text-zinc-500 text-white focus:border-primary/45 focus:ring-1 focus:ring-primary/20 transition-all outline-none"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <button 
-                        onClick={handleVoteBlacklist} 
-                        disabled={isVoting || isPending || isConfirming || !voteTarget || !isConnected}
-                        className="h-11 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 font-mono text-[9px] font-bold tracking-wider active:scale-[0.98] transition-all flex items-center justify-center space-x-1.5 disabled:opacity-40"
-                      >
-                        {(isVoting || isPending || isConfirming) ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Shield className="h-3.5 w-3.5" />}
-                        <span>BLACKLIST</span>
-                      </button>
-                      <button 
-                        onClick={handleVoteWhitelist} 
-                        disabled={isVoting || isPending || isConfirming || !voteTarget || !isConnected}
-                        className="h-11 rounded-xl bg-white text-black hover:bg-zinc-200 font-mono text-[9px] font-bold tracking-wider active:scale-[0.98] transition-all flex items-center justify-center space-x-1.5 disabled:opacity-40"
-                      >
-                        {(isVoting || isPending || isConfirming) ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Shield className="h-3.5 w-3.5" />}
-                        <span>WHITELIST</span>
-                      </button>
-                    </div>
+                <div className="space-y-4 pt-2">
+                  <div>
+                    <label htmlFor="voteTarget" className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 block mb-2">Target Address</label>
+                    <input
+                      id="voteTarget"
+                      placeholder="0x..."
+                      value={voteTarget}
+                      onChange={(e) => setVoteTarget(e.target.value)}
+                      className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 text-xs font-mono placeholder:text-zinc-500 text-white focus:border-primary/45 focus:ring-1 focus:ring-primary/20 transition-all outline-none"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <button 
+                      onClick={handleVoteBlacklist} 
+                      disabled={isVoting || isPending || isConfirming || !voteTarget || !isConnected}
+                      className="h-12 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 font-mono text-[10px] font-bold tracking-wider active:scale-[0.98] transition-all flex items-center justify-center space-x-1.5 disabled:opacity-40"
+                    >
+                      {(isVoting || isPending || isConfirming) ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Shield className="h-3.5 w-3.5" />}
+                      <span>BLACKLIST</span>
+                    </button>
+                    <button 
+                      onClick={handleVoteWhitelist} 
+                      disabled={isVoting || isPending || isConfirming || !voteTarget || !isConnected}
+                      className="h-12 rounded-xl bg-white text-black hover:bg-zinc-200 font-mono text-[10px] font-bold tracking-wider active:scale-[0.98] transition-all flex items-center justify-center space-x-1.5 disabled:opacity-40"
+                    >
+                      {(isVoting || isPending || isConfirming) ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Shield className="h-3.5 w-3.5" />}
+                      <span>WHITELIST</span>
+                    </button>
                   </div>
                 </div>
               </div>
 
               {/* Weight Refresh Module */}
-              <div className="bg-white/5 border border-white/10 rounded-[2rem] p-1.5 backdrop-blur-[2px] shadow-xl transition-all duration-500 hover:border-primary/20">
-                <div className="bg-zinc-950/40 rounded-[calc(2rem-0.5rem)] p-6 border border-white/5 space-y-4">
-                  <div className="flex items-center gap-2 pb-2 border-b border-white/5">
-                    <Settings className="h-4 w-4 text-primary" />
-                    <h3 className="font-mono text-xs uppercase tracking-wider text-white">Staking Weights sync</h3>
-                  </div>
-                  <p className="text-xs text-zinc-400 leading-relaxed">
-                    Update voting snapshots to match your active tokens. Required after making new token deposits.
-                  </p>
+              <div className="bg-zinc-950/70 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl transition-all duration-300 hover:border-white/20 space-y-5">
+                <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                  <Settings className="h-4 w-4 text-primary" />
+                  <h3 className="font-mono text-xs uppercase tracking-wider text-white">Staking Weights sync</h3>
+                </div>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Update voting snapshots to match your active tokens. Required after making new token deposits.
+                </p>
 
-                  <div className="space-y-4 pt-2">
-                    {isConnected && (
-                      <div className="p-3 bg-black/40 border border-white/5 rounded-xl">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[9px] font-mono text-zinc-500 uppercase">Active Vote Weight</span>
-                          <span className="text-xs font-mono font-bold text-white">{parseFloat(userDepositedTokens).toFixed(4)}</span>
-                        </div>
+                <div className="space-y-4 pt-2">
+                  {isConnected && (
+                    <div className="p-3.5 bg-black/40 border border-white/5 rounded-2xl">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono text-zinc-400 uppercase">Active Vote Weight</span>
+                        <span className="text-sm font-mono font-medium text-white">{parseFloat(userDepositedTokens).toFixed(4)}</span>
                       </div>
-                    )}
-                    
-                    <button 
-                      onClick={handleUpdateVoteWeights} 
-                      disabled={isUpdatingVoteWeights || isPending || isConfirming || !isConnected}
-                      className="w-full h-11 rounded-xl bg-white text-black hover:bg-zinc-200 font-mono text-[10px] font-bold tracking-wider active:scale-[0.98] transition-all flex items-center justify-center space-x-2 disabled:opacity-40"
-                    >
-                      {(isUpdatingVoteWeights || isPending || isConfirming) ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Settings className="h-3.5 w-3.5" />}
-                      <span>REFRESH SNAPSHOT</span>
-                    </button>
-                  </div>
+                    </div>
+                  )}
+                  
+                  <button 
+                    onClick={handleUpdateVoteWeights} 
+                    disabled={isUpdatingVoteWeights || isPending || isConfirming || !isConnected}
+                    className="w-full h-12 rounded-xl bg-white text-black hover:bg-zinc-200 font-mono text-xs font-semibold tracking-wider active:scale-[0.98] transition-all flex items-center justify-center space-x-2 disabled:opacity-40"
+                  >
+                    {(isUpdatingVoteWeights || isPending || isConfirming) ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Settings className="h-3.5 w-3.5" />}
+                    <span>REFRESH SNAPSHOT</span>
+                  </button>
                 </div>
               </div>
 
@@ -1651,108 +1688,91 @@ export default function OracleInteractionPage() {
           )}
 
           {/* Oracle Configuration Detail Parameters */}
-          <div className="bg-white/5 border border-white/10 rounded-[2rem] p-1.5 backdrop-blur-[2px] shadow-xl transition-all duration-500 hover:border-primary/20">
-            <div className="bg-zinc-950/40 rounded-[calc(2rem-0.5rem)] p-6 border border-white/5 space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-white/5">
-                <Settings className="h-4 w-4 text-primary" />
-                <h3 className="font-mono text-xs uppercase tracking-wider text-white">Oracle Parameters</h3>
-              </div>
+          <div className="bg-zinc-950/70 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl transition-all duration-300 hover:border-white/20 space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+              <Settings className="h-4 w-4 text-primary" />
+              <h3 className="font-mono text-xs uppercase tracking-wider text-white">Oracle Parameters</h3>
+            </div>
 
-              {oracle?.isComposed ? (
-                <div className="grid md:grid-cols-2 gap-6 text-xs pt-2">
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center p-3 bg-black/40 border border-white/5 rounded-xl">
-                      <span className="text-zinc-400 font-mono text-[9px] uppercase tracking-wider">Parent Feed A</span>
-                      <Link
-                        href={`/o?chainId=${chainId}&oracle=${oracle.feedA}`}
-                        className="text-primary hover:underline font-mono text-xs"
-                      >
-                        {oracle.feedA ? `${oracle.feedA.slice(0, 6)}...${oracle.feedA.slice(-4)}` : "—"}
-                      </Link>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-black/40 border border-white/5 rounded-xl">
-                      <span className="text-zinc-400 font-mono text-[9px] uppercase tracking-wider">Parent Feed B</span>
-                      <Link
-                        href={`/o?chainId=${chainId}&oracle=${oracle.feedB}`}
-                        className="text-primary hover:underline font-mono text-xs"
-                      >
-                        {oracle.feedB ? `${oracle.feedB.slice(0, 6)}...${oracle.feedB.slice(-4)}` : "—"}
-                      </Link>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-black/40 border border-white/5 rounded-xl">
-                      <span className="text-zinc-400 font-mono text-[9px] uppercase tracking-wider">Mathematical Op</span>
-                      <span className="text-white font-mono">
-                        {oracle.operation === 0 ? "Multiplication (×)" : "Division (/)"}
-                      </span>
-                    </div>
+            {oracle?.isComposed ? (
+              <div className="grid md:grid-cols-2 gap-4 sm:gap-6 text-xs pt-2">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center p-3.5 bg-black/40 border border-white/5 rounded-2xl">
+                    <span className="text-zinc-400 font-mono text-[10px] uppercase tracking-wider">Parent Feed A</span>
+                    <Link
+                      href={`/o?chainId=${chainId}&oracle=${oracle.feedA}`}
+                      className="text-primary hover:underline font-mono text-xs font-medium"
+                    >
+                      {oracle.feedA ? `${oracle.feedA.slice(0, 6)}...${oracle.feedA.slice(-4)}` : "—"}
+                    </Link>
                   </div>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center p-3 bg-black/40 border border-white/5 rounded-xl">
-                      <span className="text-zinc-400 font-mono text-[9px] uppercase tracking-wider">Invert Index Result</span>
-                      <span className="text-white font-mono">{oracle.invertResult ? "Yes" : "No"}</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-black/40 border border-white/5 rounded-xl">
-                      <span className="text-zinc-400 font-mono text-[9px] uppercase tracking-wider">Default Sample Size</span>
-                      <span className="text-white font-mono">
-                        {oracle.defaultSampleSize ? oracle.defaultSampleSize.toString() : "100"} points
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-black/40 border border-white/5 rounded-xl">
-                      <span className="text-zinc-400 font-mono text-[9px] uppercase tracking-wider">Staking Creator</span>
-                      <span className="text-white font-mono text-xs truncate max-w-[120px]" title={oracle.creator}>
-                        {oracle.creator ? `${oracle.creator.slice(0, 6)}...${oracle.creator.slice(-4)}` : "—"}
-                      </span>
-                    </div>
+                  <div className="flex justify-between items-center p-3.5 bg-black/40 border border-white/5 rounded-2xl">
+                    <span className="text-zinc-400 font-mono text-[10px] uppercase tracking-wider">Parent Feed B</span>
+                    <Link
+                      href={`/o?chainId=${chainId}&oracle=${oracle.feedB}`}
+                      className="text-primary hover:underline font-mono text-xs font-medium"
+                    >
+                      {oracle.feedB ? `${oracle.feedB.slice(0, 6)}...${oracle.feedB.slice(-4)}` : "—"}
+                    </Link>
+                  </div>
+                  <div className="flex justify-between items-center p-3.5 bg-black/40 border border-white/5 rounded-2xl">
+                    <span className="text-zinc-400 font-mono text-[10px] uppercase tracking-wider">Mathematical Op</span>
+                    <span className="text-white font-mono text-xs font-medium">
+                      {oracle.operation === 0 ? "Multiplication (×)" : "Division (/)"}
+                    </span>
                   </div>
                 </div>
-              ) : (
-                <div className="grid md:grid-cols-2 gap-6 text-xs pt-2">
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center p-3 bg-black/40 border border-white/5 rounded-xl">
-                      <span className="text-zinc-400 font-mono text-[9px] uppercase tracking-wider">Reward Rate</span>
-                      <span className="text-white font-mono">{rewardRate}</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-black/40 border border-white/5 rounded-xl">
-                      <span className="text-zinc-400 font-mono text-[9px] uppercase tracking-wider">Decay Half Life</span>
-                      <span className="text-white font-mono">{halfLifeSeconds}</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-black/40 border border-white/5 rounded-xl">
-                      <span className="text-zinc-400 font-mono text-[9px] uppercase tracking-wider">Governance Quorum</span>
-                      <span className="text-white font-mono">{quorumPercentage}</span>
-                    </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center p-3.5 bg-black/40 border border-white/5 rounded-2xl">
+                    <span className="text-zinc-400 font-mono text-[10px] uppercase tracking-wider">Invert Index Result</span>
+                    <span className="text-white font-mono text-xs font-medium">{oracle.invertResult ? "Yes" : "No"}</span>
                   </div>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center p-3 bg-black/40 border border-white/5 rounded-xl">
-                      <span className="text-zinc-400 font-mono text-[9px] uppercase tracking-wider">Submit Lock Period</span>
-                      <span className="text-white font-mono">{operationLockPeriod}</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-black/40 border border-white/5 rounded-xl">
-                      <span className="text-zinc-400 font-mono text-[9px] uppercase tracking-wider">Withdraw Lock Period</span>
-                      <span className="text-white font-mono">{withdrawalLockPeriod}</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-black/40 border border-white/5 rounded-xl">
-                      <span className="text-zinc-400 font-mono text-[9px] uppercase tracking-wider">Alpha (Moving Avg)</span>
-                      <span className="text-white font-mono">{alphaValue}</span>
-                    </div>
+                  <div className="flex justify-between items-center p-3.5 bg-black/40 border border-white/5 rounded-2xl">
+                    <span className="text-zinc-400 font-mono text-[10px] uppercase tracking-wider">Default Sample Size</span>
+                    <span className="text-white font-mono text-xs font-medium">
+                      {oracle.defaultSampleSize ? oracle.defaultSampleSize.toString() : "100"} points
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center p-3.5 bg-black/40 border border-white/5 rounded-2xl">
+                    <span className="text-zinc-400 font-mono text-[10px] uppercase tracking-wider">Staking Creator</span>
+                    <span className="text-white font-mono text-xs font-medium truncate max-w-[120px]" title={oracle.creator}>
+                      {oracle.creator ? `${oracle.creator.slice(0, 6)}...${oracle.creator.slice(-4)}` : "—"}
+                    </span>
                   </div>
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Historical Activity Logs */}
-          <div className="bg-white/5 border border-white/10 rounded-[2rem] p-1.5 backdrop-blur-[2px] shadow-xl transition-all duration-500 hover:border-primary/20">
-            <div className="bg-zinc-950/40 rounded-[calc(2rem-0.5rem)] p-6 border border-white/5 space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-white/5">
-                <History className="h-4 w-4 text-primary" />
-                <h3 className="font-mono text-xs uppercase tracking-wider text-white">Recent Activity & History</h3>
               </div>
-              <div className="text-center py-12 text-zinc-400">
-                <Database className="h-10 w-10 mx-auto mb-3 opacity-40 text-primary" />
-                <p className="text-sm font-medium text-white mb-1">Oracle transactions logs</p>
-                <p className="text-xs text-zinc-500">Connect wallet to index recent price validation updates.</p>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-4 sm:gap-6 text-xs pt-2">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center p-3.5 bg-black/40 border border-white/5 rounded-2xl">
+                    <span className="text-zinc-400 font-mono text-[10px] uppercase tracking-wider">Reward Rate</span>
+                    <span className="text-white font-mono text-xs font-medium">{rewardRate}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3.5 bg-black/40 border border-white/5 rounded-2xl">
+                    <span className="text-zinc-400 font-mono text-[10px] uppercase tracking-wider">Decay Half Life</span>
+                    <span className="text-white font-mono text-xs font-medium">{halfLifeSeconds}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3.5 bg-black/40 border border-white/5 rounded-2xl">
+                    <span className="text-zinc-400 font-mono text-[10px] uppercase tracking-wider">Governance Quorum</span>
+                    <span className="text-white font-mono text-xs font-medium">{quorumPercentage}</span>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center p-3.5 bg-black/40 border border-white/5 rounded-2xl">
+                    <span className="text-zinc-400 font-mono text-[10px] uppercase tracking-wider">Submit Lock Period</span>
+                    <span className="text-white font-mono text-xs font-medium">{operationLockPeriod}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3.5 bg-black/40 border border-white/5 rounded-2xl">
+                    <span className="text-zinc-400 font-mono text-[10px] uppercase tracking-wider">Withdraw Lock Period</span>
+                    <span className="text-white font-mono text-xs font-medium">{withdrawalLockPeriod}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3.5 bg-black/40 border border-white/5 rounded-2xl">
+                    <span className="text-zinc-400 font-mono text-[10px] uppercase tracking-wider">Alpha (Moving Avg)</span>
+                    <span className="text-white font-mono text-xs font-medium">{alphaValue}</span>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
         </div>

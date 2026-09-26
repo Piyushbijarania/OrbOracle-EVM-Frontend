@@ -13,19 +13,6 @@ export default function OraclePage() {
       {/* High-End Ambient Particle Backdrop */}
       <ParticleBackground />
 
-      {/* Blueprint Radar Coordinates */}
-      <div className="absolute left-10 top-48 font-mono text-[8px] tracking-wider text-white/5 select-none pointer-events-none space-y-1">
-        <div>SYS_LATENCY: 12MS</div>
-        <div>QUERY_STAT: LISTENING</div>
-        <div>SIGNATURES: VERIFIED</div>
-      </div>
-
-      <div className="absolute right-10 top-[40vh] font-mono text-[8px] tracking-wider text-white/5 select-none pointer-events-none space-y-1 text-right">
-        <div>GRID_COORD: 47.92 // 18.04</div>
-        <div>INDEX_RATE: SYNCED</div>
-        <div>EVM_STATE: ACTIVE</div>
-      </div>
-
       <Suspense fallback={
         <div className="min-h-screen flex items-center justify-center">
           <div className="animate-pulse text-muted-foreground font-mono text-xs uppercase tracking-widest">

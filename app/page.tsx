@@ -720,7 +720,7 @@ export default function HomePage() {
                         </div>
                       </div>
                       
-                      <div className="font-mono text-sm sm:text-base font-bold text-primary bg-primary/10 px-5 py-2.5 rounded-xl border border-primary/25 shadow-[0_0_24px_rgba(59,130,246,0.18)] shrink-0 text-center">
+                      <div className="font-mono text-sm sm:text-base font-bold text-primary bg-primary/10 px-5 py-2.5 rounded-xl border border-primary/20 shrink-0 text-center">
                         1 ETH = 2700 EUR
                       </div>
                     </div>

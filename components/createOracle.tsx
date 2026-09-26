@@ -469,54 +469,51 @@ export default function CreateOracleIntegrated() {
   if (submitted) {
     return (
       <div className="relative min-h-[60vh] flex items-center justify-center">
-        {/* Double Bezel Glass Wrapper */}
-        <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-1.5 shadow-2xl backdrop-blur-md max-w-2xl mx-auto w-full">
-          {/* Inner Core */}
-          <div className="bg-zinc-950/40 rounded-[calc(2.5rem-0.5rem)] p-8 border border-white/5 text-center space-y-6">
-            <div className="space-y-3">
-              <h2 className="text-3xl font-medium text-slate-100">
-                Oracle Created Successfully!
-              </h2>
-              <p className="text-base text-slate-200">
-                Your oracle has been deployed and is ready to use.
-              </p>
-              {oracleAddress && (
-                <div className="bg-zinc-950/60 border border-white/10 rounded-xl p-3 font-mono text-xs text-white max-w-sm mx-auto shadow-inner">
-                  <div className="flex items-center justify-between">
-                    <span className="text-primary font-semibold">{formatAddress(oracleAddress)}</span>
-                    <button
-                      onClick={() => onCopy(oracleAddress)}
-                      className="text-[10px] bg-white/5 hover:bg-white/10 border border-white/10 px-2.5 py-1 rounded-lg transition-colors text-white"
-                    >
-                      {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                    </button>
-                  </div>
+        {/* Success Card Single Surface */}
+        <div className="bg-zinc-950/70 border border-white/10 rounded-3xl p-8 shadow-2xl backdrop-blur-md max-w-2xl mx-auto w-full text-center space-y-6">
+          <div className="space-y-3">
+            <h2 className="text-3xl font-medium text-slate-100">
+              Oracle Created Successfully!
+            </h2>
+            <p className="text-base text-slate-200">
+              Your oracle has been deployed and is ready to use.
+            </p>
+            {oracleAddress && (
+              <div className="bg-zinc-950/60 border border-white/10 rounded-xl p-3 font-mono text-xs text-white max-w-sm mx-auto shadow-inner">
+                <div className="flex items-center justify-between">
+                  <span className="text-primary font-semibold">{formatAddress(oracleAddress)}</span>
+                  <button
+                    onClick={() => onCopy(oracleAddress)}
+                    className="text-[10px] bg-white/5 hover:bg-white/10 border border-white/10 px-2.5 py-1 rounded-lg transition-colors text-white"
+                  >
+                    {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                  </button>
                 </div>
-              )}
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-4">
-              {hashTx && (
-                <Link href={getBlockExplorerUrl(activeChainId, hashTx)} target="_blank">
-                  <Button variant="outline" className="h-11 px-6 rounded-full border-white/10 hover:bg-white/5 text-white font-mono text-xs font-medium tracking-wide uppercase transition-all">
-                    View Transaction
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-              )}
-              {oracleAddress && (
-                <Link href={`/o?chainId=${activeChainId}&oracle=${oracleAddress}`}>
-                  <Button className="h-11 px-6 rounded-full bg-white hover:bg-zinc-200 text-black font-mono text-xs font-semibold tracking-wide uppercase shadow-md transition-all">
-                    Go to Oracle
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-              )}
-              <Link href="/explorer">
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-4">
+            {hashTx && (
+              <Link href={getBlockExplorerUrl(activeChainId, hashTx)} target="_blank">
                 <Button variant="outline" className="h-11 px-6 rounded-full border-white/10 hover:bg-white/5 text-white font-mono text-xs font-medium tracking-wide uppercase transition-all">
-                  Browse Oracles
+                  View Transaction
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
-            </div>
+            )}
+            {oracleAddress && (
+              <Link href={`/o?chainId=${activeChainId}&oracle=${oracleAddress}`}>
+                <Button className="h-11 px-6 rounded-full bg-white hover:bg-zinc-200 text-black font-mono text-xs font-semibold tracking-wide uppercase shadow-md transition-all">
+                  Go to Oracle
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            )}
+            <Link href="/explorer">
+              <Button variant="outline" className="h-11 px-6 rounded-full border-white/10 hover:bg-white/5 text-white font-mono text-xs font-medium tracking-wide uppercase transition-all">
+                Browse Oracles
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
@@ -564,9 +561,8 @@ export default function CreateOracleIntegrated() {
         </div>
 
         {activeTab === 'composed' ? (
-          <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-1.5 shadow-2xl backdrop-blur-md max-w-4xl mx-auto">
-            <div className="bg-zinc-950/40 rounded-[calc(2.5rem-0.5rem)] p-8 border border-white/5 space-y-6">
-              <div className="border-b border-white/5 pb-4">
+          <div className="bg-zinc-950/70 border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-md max-w-4xl mx-auto space-y-6">
+            <div className="border-b border-white/5 pb-4">
                 <h2 className="text-sm font-mono tracking-widest text-primary uppercase font-bold">
                   Composed Oracle Configuration
                 </h2>
@@ -709,86 +705,82 @@ export default function CreateOracleIntegrated() {
               </div>
             </div>
           </div>
-        </div>
-      ) : (
+        ) : (
           <>
-            <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-1.5 shadow-2xl backdrop-blur-md max-w-4xl mx-auto">
-              <div className="bg-zinc-950/40 rounded-[calc(2.5rem-0.5rem)] p-8 border border-white/5 space-y-6">
-                <div className="border-b border-white/5 pb-4">
-                  <h2 className="text-sm font-mono tracking-widest text-primary uppercase font-bold">
-                    Oracle Metadata
-                  </h2>
+            <div className="bg-zinc-950/70 border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-md max-w-4xl mx-auto space-y-6">
+              <div className="border-b border-white/5 pb-4">
+                <h2 className="text-sm font-mono tracking-widest text-primary uppercase font-bold">
+                  Oracle Metadata
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 relative">
+                  <Label htmlFor="name" className="font-mono text-[10.5px] tracking-wider text-muted-foreground uppercase">
+                    Name *
+                  </Label>
+                  <button
+                    type="button"
+                    className="text-slate-300 hover:text-slate-100 transition-colors"
+                    onMouseEnter={() => setShowTooltip('name')}
+                    onMouseLeave={() => setShowTooltip(null)}
+                  >
+                    <Info className="h-3 w-3" />
+                  </button>
+                  {showTooltip === 'name' && (
+                    <div className="absolute bottom-full mb-2 left-0 z-50 bg-zinc-950 border border-white/10 text-white font-mono text-[9.5px] rounded-lg p-2.5 shadow-xl max-w-xs pointer-events-none">
+                      Display name for your oracle
+                    </div>
+                  )}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 relative">
-                    <Label htmlFor="name" className="font-mono text-[10.5px] tracking-wider text-muted-foreground uppercase">
-                      Name *
-                    </Label>
-                    <button
-                      type="button"
-                      className="text-slate-300 hover:text-slate-100 transition-colors"
-                      onMouseEnter={() => setShowTooltip('name')}
-                      onMouseLeave={() => setShowTooltip(null)}
-                    >
-                      <Info className="h-3 w-3" />
-                    </button>
-                    {showTooltip === 'name' && (
-                      <div className="absolute bottom-full mb-2 left-0 z-50 bg-zinc-950 border border-white/10 text-white font-mono text-[9.5px] rounded-lg p-2.5 shadow-xl max-w-xs pointer-events-none">
-                        Display name for your oracle
-                      </div>
-                    )}
-                  </div>
-                  <Input
-                    id="name"
-                    placeholder="ETH/USD Oracle"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className={`bg-zinc-950/50 border border-white/10 focus:border-primary/45 focus:ring-0 text-white rounded-xl h-11 px-4 font-mono text-xs placeholder:text-muted-foreground/60 w-full max-w-full ${errors.name ? 'border-red-500' : ''}`}
-                    required
-                  />
-                  {errors.name && <p className="text-red-400 text-xs">{errors.name}</p>}
+                <Input
+                  id="name"
+                  placeholder="ETH/USD Oracle"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className={`bg-zinc-950/50 border border-white/10 focus:border-primary/45 focus:ring-0 text-white rounded-xl h-11 px-4 font-mono text-xs placeholder:text-muted-foreground/60 w-full max-w-full ${errors.name ? 'border-red-500' : ''}`}
+                  required
+                />
+                {errors.name && <p className="text-red-400 text-xs">{errors.name}</p>}
+              </div>
+              <div className="space-y-1 col-span-2">
+                <div className="flex items-center gap-2 relative">
+                  <Label htmlFor="description" className="font-mono text-[10.5px] tracking-wider text-muted-foreground uppercase">
+                    Description *
+                  </Label>
+                  <button
+                    type="button"
+                    className="text-slate-300 hover:text-slate-100 transition-colors"
+                    onMouseEnter={() => setShowTooltip('description')}
+                    onMouseLeave={() => setShowTooltip(null)}
+                  >
+                    <Info className="h-3 w-3" />
+                  </button>
+                  {showTooltip === 'description' && (
+                    <div className="absolute bottom-full mb-2 left-0 z-50 bg-zinc-950 border border-white/10 text-white font-mono text-[9.5px] rounded-lg p-2.5 shadow-xl max-w-xs pointer-events-none">
+                      Detailed description of your oracle's purpose
+                    </div>
+                  )}
                 </div>
-                <div className="space-y-1 col-span-2">
-                  <div className="flex items-center gap-2 relative">
-                    <Label htmlFor="description" className="font-mono text-[10.5px] tracking-wider text-muted-foreground uppercase">
-                      Description *
-                    </Label>
-                    <button
-                      type="button"
-                      className="text-slate-300 hover:text-slate-100 transition-colors"
-                      onMouseEnter={() => setShowTooltip('description')}
-                      onMouseLeave={() => setShowTooltip(null)}
-                    >
-                      <Info className="h-3 w-3" />
-                    </button>
-                    {showTooltip === 'description' && (
-                      <div className="absolute bottom-full mb-2 left-0 z-50 bg-zinc-950 border border-white/10 text-white font-mono text-[9.5px] rounded-lg p-2.5 shadow-xl max-w-xs pointer-events-none">
-                        Detailed description of your oracle's purpose
-                      </div>
-                    )}
-                  </div>
-                  <Textarea
-                    id="description"
-                    placeholder="Describe your oracle's purpose and data source"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    required
-                    className={`bg-zinc-950/50 border border-white/10 focus:border-primary/45 focus:ring-0 text-white rounded-xl h-11 px-4 font-mono text-xs placeholder:text-muted-foreground/60 w-full ${errors.description ? 'border-red-500' : ''}`}
-                  />
-                  {errors.description && <p className="text-red-400 text-xs">{errors.description}</p>}
-                </div>
+                <Textarea
+                  id="description"
+                  placeholder="Describe your oracle's purpose and data source"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  required
+                  className={`bg-zinc-950/50 border border-white/10 focus:border-primary/45 focus:ring-0 text-white rounded-xl h-11 px-4 font-mono text-xs placeholder:text-muted-foreground/60 w-full ${errors.description ? 'border-red-500' : ''}`}
+                />
+                {errors.description && <p className="text-red-400 text-xs">{errors.description}</p>}
               </div>
             </div>
           </div>
 
-            <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-1.5 shadow-2xl backdrop-blur-md max-w-4xl mx-auto mt-8">
-              <div className="bg-zinc-950/40 rounded-[calc(2.5rem-0.5rem)] p-8 border border-white/5 space-y-6">
-                <div className="border-b border-white/5 pb-4">
-                  <h2 className="text-sm font-mono tracking-widest text-primary uppercase font-bold">
-                    Oracle Configuration
-                  </h2>
-                </div>
+            <div className="bg-zinc-950/70 border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-md max-w-4xl mx-auto mt-8 space-y-6">
+              <div className="border-b border-white/5 pb-4">
+                <h2 className="text-sm font-mono tracking-widest text-primary uppercase font-bold">
+                  Oracle Configuration
+                </h2>
+              </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 mb-2 relative">
@@ -1074,8 +1066,7 @@ export default function CreateOracleIntegrated() {
                 </div>
               </div>
             </div>
-          </div>
-        </>
+          </>
         )}
 
         <div className="justify-center flex pt-8">

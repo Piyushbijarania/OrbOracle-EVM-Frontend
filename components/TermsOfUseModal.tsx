@@ -313,25 +313,19 @@ export default function TermsOfUseModal({ isOpen, onClose, onAccept }: TermsOfUs
       onClick={onClose}
     >
       <div
-        className="bg-white/5 border border-white/10 rounded-[2.5rem] p-1.5 shadow-2xl backdrop-blur-md max-w-3xl w-full max-h-[90vh] flex flex-col"
+        className="bg-zinc-950/95 border border-white/10 rounded-3xl shadow-2xl backdrop-blur-md max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="bg-zinc-950/95 border border-white/5 rounded-[calc(2.5rem-0.5rem)] flex-grow flex flex-col overflow-hidden">
-          
-          {/* Header */}
-          <div className="flex justify-between items-center px-6 py-5 border-b border-white/5">
-            <div className="flex items-center space-x-2.5">
-              <span className="w-2 h-2 rounded-full bg-primary" />
-              <h2 className="text-lg font-medium text-slate-100 tracking-tight">Terms of Use</h2>
-            </div>
-            <button
-              onClick={onClose}
-              className="text-slate-400 hover:text-slate-100 text-2xl leading-none w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors cursor-pointer"
-              aria-label="Close"
-            >
-              &times;
-            </button>
-          </div>
+        {/* Header */}
+        <div className="flex justify-end items-center px-6 py-4 border-b border-white/5">
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-100 text-2xl leading-none w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors cursor-pointer"
+            aria-label="Close"
+          >
+            &times;
+          </button>
+        </div>
 
           {/* Body: Rendered Markdown Document */}
           <div className="p-6 flex-grow flex flex-col overflow-hidden space-y-5">
@@ -389,9 +383,7 @@ export default function TermsOfUseModal({ isOpen, onClose, onAccept }: TermsOfUs
             </div>
 
           </div>
-
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
