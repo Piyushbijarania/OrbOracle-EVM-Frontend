@@ -21,6 +21,7 @@ import {
 } from "lucide-react"
 import ParticleBackground from "@/components/ParticleBackground"
 import { StructureFlowBackground } from "@/src/shaders/structure-flow/StructureFlowBackground"
+import RewardFlowVisualizer from "@/components/RewardFlowVisualizer"
 import { useState, useEffect, useRef } from "react"
 
 // Subtle Scroll Reveal Animation Wrapper
@@ -76,100 +77,7 @@ function ScrollReveal({
   )
 }
 
-// Interactive Time-Decayed Weight Calculator Component
-function ProtocolMathSimulator() {
-  const [elapsedMinutes, setElapsedMinutes] = useState<number>(30)
-  const initialWeight = 1000
-  const halfLifeMinutes = 60 // 3600s half-life
 
-  const decayFactor = Math.pow(0.5, elapsedMinutes / halfLifeMinutes)
-  const currentWeight = initialWeight * decayFactor
-
-  return (
-    <div className="w-full max-w-[480px] bg-zinc-950/70 border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-7 shadow-xl backdrop-blur-md flex flex-col font-mono text-xs space-y-5 transition-all duration-300 hover:border-white/20">
-      
-      {/* Card Header */}
-      <div className="flex items-center justify-between border-b border-white/5 pb-3">
-        <div className="flex items-center space-x-2">
-          <span className="w-2 h-2 rounded-full bg-primary" />
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-white">
-            Voting Weight Decay Reader
-          </span>
-        </div>
-        <span className="text-[10px] px-2 py-0.5 rounded bg-primary/10 border border-primary/20 text-primary uppercase tracking-widest font-mono">
-          Half-Life: 1h
-        </span>
-      </div>
-
-      {/* Real-time Math State */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="p-3 bg-black/40 rounded-xl border border-white/5 flex flex-col space-y-1">
-          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Initial Weight</span>
-          <span className="text-sm sm:text-base font-bold text-white">{initialWeight.toLocaleString()} Tokens</span>
-        </div>
-        <div className="p-3 bg-black/40 rounded-xl border border-white/5 flex flex-col space-y-1">
-          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Decay Rate</span>
-          <span className="text-sm sm:text-base font-bold text-primary">50% per 60 min</span>
-        </div>
-      </div>
-
-      {/* Interactive Elapsed Time Slider */}
-      <div className="space-y-2 pt-1">
-        <div className="flex justify-between items-center text-[11px]">
-          <span className="text-zinc-300 font-medium">Time Since Last Report:</span>
-          <span className="text-primary font-bold bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
-            {elapsedMinutes} min ({Math.round(elapsedMinutes * 60)}s)
-          </span>
-        </div>
-        <input
-          type="range"
-          min={0}
-          max={180}
-          step={5}
-          value={elapsedMinutes}
-          onChange={(e) => setElapsedMinutes(Number(e.target.value))}
-          className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-primary"
-        />
-        <div className="flex justify-between text-[9px] text-muted-foreground">
-          <span>0m (100%)</span>
-          <span>60m (50%)</span>
-          <span>120m (25%)</span>
-          <span>180m (12.5%)</span>
-        </div>
-      </div>
-
-      {/* Interactive Output Metrics */}
-      <div className="p-3.5 bg-black/40 rounded-xl border border-white/5 space-y-2.5">
-        <div className="flex justify-between items-center text-xs">
-          <span className="text-muted-foreground text-[10.5px]">Active Consensus Influence:</span>
-          <span className="font-bold text-primary text-sm">{currentWeight.toFixed(1)} <span className="text-xs font-normal text-zinc-400">({(decayFactor * 100).toFixed(1)}%)</span></span>
-        </div>
-        <div className="w-full bg-zinc-800 h-2 rounded-full overflow-hidden">
-          <div 
-            className="bg-gradient-to-r from-primary/60 to-primary h-full transition-all duration-300 rounded-full"
-            style={{ width: `${decayFactor * 100}%` }}
-          />
-        </div>
-        <div className="flex justify-between items-center pt-1 border-t border-white/5 text-[10px]">
-          <span className="text-muted-foreground">Protocol Recency Status:</span>
-          <span className={`font-semibold ${elapsedMinutes < 60 ? 'text-primary' : elapsedMinutes < 120 ? 'text-yellow-400' : 'text-zinc-400'}`}>
-            {elapsedMinutes < 60 ? 'Fresh & High Impact' : elapsedMinutes < 120 ? 'Aging (Update Due)' : 'Stale Weight'}
-          </span>
-        </div>
-      </div>
-
-      {/* Footer info note */}
-      <div className="flex items-center justify-between text-[9px] text-muted-foreground pt-1">
-        <span className="flex items-center gap-1">
-          <CheckCircle2 className="w-3 h-3 text-primary" />
-          Deterministic On-Chain Math
-        </span>
-        <span className="font-mono text-zinc-400">Fixed-Point WAD</span>
-      </div>
-
-    </div>
-  )
-}
 
 export default function HomePage() {
   // Interactive Value Range Simulator State
@@ -472,17 +380,6 @@ export default function HomePage() {
                   <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
                     Exchange rates have natural spreads and volatile fluctuations. Exposing value ranges parameter-free via view calls empowers lending protocols and DEXs to measure market uncertainty directly on-chain, automatically filtering out single-transaction flash-loan spikes and sandwich manipulation without extra calculation.
                   </p>
-
-                  <div className="pt-2 font-mono text-xs text-muted-foreground space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      <span>Direct view calls for historical value bounds</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      <span>Protects protocols from flash-loan spikes and false liquidations</span>
-                    </div>
-                  </div>
                 </div>
 
                 {/* Interactive Simulator */}
@@ -639,35 +536,11 @@ export default function HomePage() {
                   <p className="text-zinc-300 leading-relaxed text-sm sm:text-base">
                     Multiply or divide any two active oracles directly on-chain to create custom currency pairs, cross-asset rates, or synthetic pricing without storing duplicate state or incurring extra gas delay.
                   </p>
-
-                  <div className="space-y-2.5 sm:space-y-3 pt-2 font-mono text-xs text-muted-foreground">
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                      <span>Standard 18 decimals fixed-point precision (<span className="text-white">WAD = 1e18</span>)</span>
-                    </div>
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                      <span>Instant, gas-free price reading via pure view functions</span>
-                    </div>
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                      <span>Recursive blacklist union: preserves anti-free-riding rules across compositions</span>
-                    </div>
-                  </div>
                 </div>
 
                 <div className="lg:col-span-6">
                   <div className="bg-black/50 rounded-2xl p-6 sm:p-8 border border-white/10 space-y-6 sm:space-y-8 shadow-xl">
                     
-                    <div className="flex items-center justify-between border-b border-white/5 pb-4">
-                      <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground font-semibold">
-                        Composition Pipeline
-                      </span>
-                      <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-wider bg-white/5 border border-white/10 px-2.5 py-1 rounded-full">
-                        EVM Math
-                      </span>
-                    </div>
-
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 relative">
                       
                       {/* Oracle A */}
@@ -753,21 +626,10 @@ export default function HomePage() {
                   <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
                     The reward formula is mathematically proven (Theorem 4) to preserve its balance, ensuring the reward pool never drains to zero and maintaining permanent operational incentives for operators.
                   </p>
-
-                  <div className="pt-2 font-mono text-xs text-muted-foreground space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      <span>Reward Formula: <span className="text-white font-mono">n = α · B · (w / Q&apos;) · (1 - δ(t - tu))</span></span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      <span>Pool Sustainability: Formally verified never to empty</span>
-                    </div>
-                  </div>
                 </div>
 
                 <div className="lg:col-span-6 flex justify-center w-full">
-                  <ProtocolMathSimulator />
+                  <RewardFlowVisualizer />
                 </div>
 
               </div>
