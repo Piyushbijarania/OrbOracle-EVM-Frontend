@@ -450,12 +450,12 @@ export default function HomePage() {
             <ScrollReveal delay={140}>
               <div className="bg-zinc-950/60 border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 backdrop-blur-md h-full flex flex-col justify-between space-y-6 sm:space-y-8 hover:border-white/20 transition-all duration-300 shadow-xl">
                 <div className="space-y-3 sm:space-y-4">
-                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary">
-                    <Cpu className="h-5 w-5 sm:h-6 sm:w-6 stroke-[1.5]" />
+                  <div className="flex items-center space-x-2">
+                    <Cpu className="h-5 w-5 text-primary stroke-[1.5]" />
+                    <span className="text-[10px] sm:text-[11px] tracking-widest font-mono text-primary uppercase font-semibold">
+                      ADVANTAGE 02 // SCALABILITY
+                    </span>
                   </div>
-                  <span className="text-[10px] sm:text-[11px] tracking-widest font-mono text-primary uppercase font-semibold">
-                    ADVANTAGE 02 // SCALABILITY
-                  </span>
                   <h3 className="text-xl sm:text-2xl font-medium tracking-tight text-white">
                     Scalable Decentralization
                   </h3>
@@ -485,12 +485,12 @@ export default function HomePage() {
             <ScrollReveal delay={200}>
               <div className="bg-zinc-950/60 border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 backdrop-blur-md h-full flex flex-col justify-between space-y-6 sm:space-y-8 hover:border-white/20 transition-all duration-300 shadow-xl">
                 <div className="space-y-3 sm:space-y-4">
-                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary">
-                    <Zap className="h-5 w-5 sm:h-6 sm:w-6 stroke-[1.5]" />
+                  <div className="flex items-center space-x-2">
+                    <Zap className="h-5 w-5 text-primary stroke-[1.5]" />
+                    <span className="text-[10px] sm:text-[11px] tracking-widest font-mono text-primary uppercase font-semibold">
+                      ADVANTAGE 03 // SPEED & LATENCY
+                    </span>
                   </div>
-                  <span className="text-[10px] sm:text-[11px] tracking-widest font-mono text-primary uppercase font-semibold">
-                    ADVANTAGE 03 // SPEED & LATENCY
-                  </span>
                   <h3 className="text-xl sm:text-2xl font-medium tracking-tight text-white">
                     Speed
                   </h3>
