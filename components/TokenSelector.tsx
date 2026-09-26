@@ -198,115 +198,113 @@ const TokenSelector: React.FC<TokenSelectorProps> = ({
         <p className="text-red-400 text-xs">{error}</p>
       )}
 
-      {/* Token Selection Modal (Double Bezel Glass modal wrapper) */}
+      {/* Token Selection Modal (Single-Surface Glass Modal) */}
       {isModalOpen && mounted && createPortal(
         <div
           className="fixed inset-0 bg-black/85 flex items-center justify-center z-[1000] p-4 backdrop-blur-[12px] transition-all duration-200"
           onClick={() => setIsModalOpen(false)}
         >
           <div
-            className="bg-white/5 border border-white/10 rounded-[2.5rem] p-1.5 shadow-2xl backdrop-blur-md max-w-2xl w-full max-h-[80vh] flex flex-col animate-fadeInScale"
+            className="bg-zinc-950/95 border border-white/10 rounded-3xl shadow-2xl backdrop-blur-md max-w-2xl w-full max-h-[80vh] flex flex-col overflow-hidden animate-fadeInScale"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-zinc-950/95 border border-white/5 rounded-[calc(2.5rem-0.5rem)] flex-grow flex flex-col overflow-hidden">
-              {/* Modal Header */}
-              <div className="flex justify-between items-center p-6 border-b border-white/5">
-                <h2 className="text-lg font-medium text-slate-100">Select Token</h2>
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="text-slate-400 hover:text-slate-100 text-2xl leading-none w-8 h-8 flex items-center justify-center transition-colors cursor-pointer"
-                >
-                  &times;
-                </button>
-              </div>
+            {/* Modal Header */}
+            <div className="flex justify-between items-center p-6 border-b border-white/5">
+              <h2 className="text-lg font-medium text-slate-100">Select Token</h2>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-slate-400 hover:text-slate-100 text-2xl leading-none w-8 h-8 flex items-center justify-center transition-colors cursor-pointer"
+              >
+                &times;
+              </button>
+            </div>
 
-              {/* Search Bar */}
-              <div className="p-4 border-b border-white/5">
-                <div className="relative">
-                  <Input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search tokens..."
-                    className="w-full pl-10 h-11 border-white/10 text-white bg-white/5 rounded-xl placeholder:text-zinc-500 focus:border-primary/40 focus:ring-1 focus:ring-primary/40 transition-all"
+            {/* Search Bar */}
+            <div className="p-4 border-b border-white/5">
+              <div className="relative">
+                <Input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search tokens..."
+                  className="w-full pl-10 h-11 border-white/10 text-white bg-white/5 rounded-xl placeholder:text-zinc-500 focus:border-primary/40 focus:ring-1 focus:ring-primary/40 transition-all"
+                />
+                <svg
+                  className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-zinc-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                   />
-                  <svg
-                    className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-zinc-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
+                </svg>
+              </div>
+            </div>
+
+            {/* Token List */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-1">
+              {loading ? (
+                <div className="text-center py-8 text-slate-400 font-mono text-xs">
+                  Loading tokens...
                 </div>
-              </div>
-
-              {/* Token List */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-1">
-                {loading ? (
-                  <div className="text-center py-8 text-slate-400 font-mono text-xs">
-                    Loading tokens...
-                  </div>
-                ) : filteredTokens.length === 0 ? (
-                  <div className="text-center py-8 text-slate-400 font-mono text-xs">
-                    {searchQuery
-                      ? "No tokens found matching your search"
-                      : "No tokens available for this chain"}
-                  </div>
-                ) : (
-                  <div className="space-y-1">
-                    {filteredTokens.map((token) => (
-                      <button
-                        key={token.id}
-                        type="button"
-                        onClick={() => handleTokenSelect(token)}
-                        className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all duration-300 text-left border border-transparent hover:border-white/10 cursor-pointer"
-                      >
-                        <img
-                          src={token.image || "/stability.svg"}
-                          alt={token.symbol}
-                          className="w-8 h-8 rounded-full flex-shrink-0"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/stability.svg";
-                          }}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-slate-100">
-                              {token.symbol}
-                            </span>
-                            <span className="text-slate-400 text-xs truncate">
-                              {token.name}
-                            </span>
-                          </div>
-                          <div className="text-slate-500 text-[10px] font-mono mt-0.5">
-                            {truncateAddress(token.contract_address)}
-                          </div>
+              ) : filteredTokens.length === 0 ? (
+                <div className="text-center py-8 text-slate-400 font-mono text-xs">
+                  {searchQuery
+                    ? "No tokens found matching your search"
+                    : "No tokens available for this chain"}
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  {filteredTokens.map((token) => (
+                    <button
+                      key={token.id}
+                      type="button"
+                      onClick={() => handleTokenSelect(token)}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all duration-300 text-left border border-transparent hover:border-white/10 cursor-pointer"
+                    >
+                      <img
+                        src={token.image || "/stability.svg"}
+                        alt={token.symbol}
+                        className="w-8 h-8 rounded-full flex-shrink-0"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/stability.svg";
+                        }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-slate-100">
+                            {token.symbol}
+                          </span>
+                          <span className="text-slate-400 text-xs truncate">
+                            {token.name}
+                          </span>
                         </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+                        <div className="text-slate-500 text-[10px] font-mono mt-0.5">
+                          {truncateAddress(token.contract_address)}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
-              {/* Manual Input Option */}
-              <div className="p-4 border-t border-white/5">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsManualInput(true);
-                    setIsModalOpen(false);
-                  }}
-                  className="w-full py-2.5 px-4 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-all duration-300 text-xs font-semibold uppercase font-mono tracking-wider border border-white/10 hover:border-primary/30 cursor-pointer"
-                >
-                  Enter Custom Address
-                </button>
-              </div>
+            {/* Manual Input Option */}
+            <div className="p-4 border-t border-white/5">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsManualInput(true);
+                  setIsModalOpen(false);
+                }}
+                className="w-full py-2.5 px-4 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-all duration-300 text-xs font-semibold uppercase font-mono tracking-wider border border-white/10 hover:border-primary/30 cursor-pointer"
+              >
+                Enter Custom Address
+              </button>
             </div>
           </div>
         </div>,
