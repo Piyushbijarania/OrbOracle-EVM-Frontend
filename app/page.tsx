@@ -243,12 +243,12 @@ export default function HomePage() {
           <ScrollReveal delay={120}>
             <div className="bg-zinc-950/60 border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 backdrop-blur-md h-full flex flex-col justify-between space-y-6 hover:border-white/20 transition-all duration-300 shadow-xl">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary">
-                  <Layers className="h-6 w-6 stroke-[1.5]" />
+                <div className="flex items-center space-x-2">
+                  <Layers className="h-5 w-5 text-primary stroke-[1.5]" />
+                  <span className="text-[10px] sm:text-[11px] tracking-widest font-mono text-primary uppercase font-semibold">
+                    DATA STREAMS
+                  </span>
                 </div>
-                <span className="text-[10px] sm:text-[11px] tracking-widest font-mono text-primary uppercase font-semibold">
-                  01 // DATA STREAMS
-                </span>
                 <h3 className="text-lg sm:text-xl font-medium tracking-tight text-white">
                   Immutable On-Chain Streams
                 </h3>
@@ -274,12 +274,12 @@ export default function HomePage() {
           <ScrollReveal delay={200}>
             <div className="bg-zinc-950/60 border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 backdrop-blur-md h-full flex flex-col justify-between space-y-6 hover:border-white/20 transition-all duration-300 shadow-xl">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary">
-                  <Coins className="h-6 w-6 stroke-[1.5]" />
+                <div className="flex items-center space-x-2">
+                  <Coins className="h-5 w-5 text-primary stroke-[1.5]" />
+                  <span className="text-[10px] sm:text-[11px] tracking-widest font-mono text-primary uppercase font-semibold">
+                    STAKED OPERATORS
+                  </span>
                 </div>
-                <span className="text-[10px] sm:text-[11px] tracking-widest font-mono text-primary uppercase font-semibold">
-                  02 // STAKED OPERATORS
-                </span>
                 <h3 className="text-lg sm:text-xl font-medium tracking-tight text-white">
                   Staked Operators & EWMA
                 </h3>
@@ -305,12 +305,12 @@ export default function HomePage() {
           <ScrollReveal delay={280}>
             <div className="bg-zinc-950/60 border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 backdrop-blur-md h-full flex flex-col justify-between space-y-6 hover:border-white/20 transition-all duration-300 shadow-xl">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary">
-                  <Shield className="h-6 w-6 stroke-[1.5]" />
+                <div className="flex items-center space-x-2">
+                  <Shield className="h-5 w-5 text-primary stroke-[1.5]" />
+                  <span className="text-[10px] sm:text-[11px] tracking-widest font-mono text-primary uppercase font-semibold">
+                    ACCESS CONTROL
+                  </span>
                 </div>
-                <span className="text-[10px] sm:text-[11px] tracking-widest font-mono text-primary uppercase font-semibold">
-                  03 // ACCESS CONTROL
-                </span>
                 <h3 className="text-lg sm:text-xl font-medium tracking-tight text-white">
                   Anti-Free-Riding Governance
                 </h3>
