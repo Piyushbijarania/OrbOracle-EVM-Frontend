@@ -163,10 +163,10 @@ export default function RewardFlowVisualizer() {
   }, [])
 
   return (
-    <div className="w-full max-w-[560px] bg-zinc-950/80 border border-white/10 rounded-3xl p-6 sm:p-8 shadow-xl backdrop-blur-md flex flex-col justify-between font-mono text-xs select-none">
+    <div className="w-full max-w-[560px] bg-zinc-950/80 border border-white/10 rounded-3xl p-6 sm:p-7 shadow-xl backdrop-blur-md flex flex-col justify-between font-mono text-xs select-none">
       
       {/* Flow Stage */}
-      <div className="relative w-full h-[290px]">
+      <div className="relative w-full h-[270px]">
         
         {/* Canvas for connecting conduits and blue beams */}
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
@@ -260,12 +260,6 @@ export default function RewardFlowVisualizer() {
           </div>
         </div>
 
-      </div>
-
-      {/* Clean Bottom Formula */}
-      <div className="pt-4 border-t border-white/5 flex items-center justify-between text-[11px] text-zinc-400">
-        <span>Continuous Stream:</span>
-        <code className="text-primary font-bold text-xs">n = α · B · (w/Q&apos;) · (1 - δ)</code>
       </div>
 
     </div>
